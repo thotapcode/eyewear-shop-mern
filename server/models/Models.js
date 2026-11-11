@@ -36,8 +36,11 @@ const OrderSchema = mongoose.Schema({
   total: Number,
   status: String, // PENDING, APPROVED, CANCELED
   customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
+  // name và price là bản chụp lúc đặt hàng, để đơn cũ không đổi khi sản phẩm bị sửa hoặc xóa
   items: [{
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    name: String,
+    price: Number,
     quantity: Number,
   }],
 }, { versionKey: false });

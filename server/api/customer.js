@@ -98,14 +98,55 @@ router.get('/token', JwtUtil.checkCustomer, async (req, res) => {
   res.json({ success: true, message: 'Token is valid', token: req.headers['x-access-token'], customer: publicCustomer(customer) });
 });
 
+// sau khi qua checkCustomer, kiểm tra thêm tài khoản còn tồn tại và đang kích hoạt
+// (token đã cấp vẫn còn hạn nhưng tài khoản có thể đã bị admin khóa)
+async function requireActive(req, res, next) {
+  const customer = await Customer.findById(req.decoded.id);
+  if (!customer || customer.active !== 1) return res.json({ success: false, message: 'Tài khoản không hợp lệ hoặc đã bị khóa' });
+  next();
+}
+
 // khách chỉ được sửa hồ sơ của chính mình
-router.put('/customers/:id', JwtUtil.checkCustomer, async (req, res) => {
+router.put('/customers/:id', JwtUtil.checkCustomer, requireActive, async (req, res) => {
   if (String(req.decoded.id) !== req.params.id) return res.json({ success: false, message: 'Không có quyền sửa hồ sơ này' });
   const { name, phone, email, password } = req.body;
   const update = { name, phone, email };
   if (password) update.password = PasswordUtil.hash(password);
   const customer = await Customer.findByIdAndUpdate(req.params.id, update, { new: true });
   res.json({ success: true, customer: publicCustomer(customer) });
+});
+
+// ---- đặt hàng ----
+const MAX_QTY = 20;
+
+// giá và tên luôn lấy từ cơ sở dữ liệu, không tin dữ liệu giá do client gửi lên
+router.post('/checkout', JwtUtil.checkCustomer, requireActive, async (req, res) => {
+  const raw = Array.isArray(req.body.items) ? req.body.items : [];
+  if (raw.length === 0) return res.json({ success: false, message: 'Giỏ hàng đang trống' });
+
+  const merged = new Map(); // gộp các dòng trùng sản phẩm
+  for (const it of raw) {
+    const qty = Number(it.quantity);
+    if (!isId(it.product) || !Number.isInteger(qty) || qty < 1 || qty > MAX_QTY) {
+      return res.json({ success: false, message: `Số lượng mỗi sản phẩm phải từ 1 đến ${MAX_QTY}` });
+    }
+    merged.set(String(it.product), Math.min((merged.get(String(it.product)) || 0) + qty, MAX_QTY));
+  }
+
+  const products = await Product.find({ _id: { $in: [...merged.keys()] } });
+  if (products.length !== merged.size) {
+    return res.json({ success: false, message: 'Có sản phẩm trong giỏ không còn bán, vui lòng kiểm tra lại giỏ hàng' });
+  }
+
+  const items = products.map((p) => ({ product: p._id, name: p.name, price: p.price, quantity: merged.get(String(p._id)) }));
+  const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const order = await Order.create({ cdate: Date.now(), total, status: 'PENDING', customer: req.decoded.id, items });
+  res.json({ success: true, message: 'Đặt hàng thành công', order });
+});
+
+router.get('/orders/customer/:cid', JwtUtil.checkCustomer, requireActive, async (req, res) => {
+  if (String(req.decoded.id) !== req.params.cid) return res.json({ success: false, message: 'Không có quyền xem đơn hàng này' });
+  res.json(await Order.find({ customer: req.params.cid }).sort({ cdate: -1 }));
 });
 
 module.exports = router;
