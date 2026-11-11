@@ -14,34 +14,34 @@ router.post('/login', async (req, res) => {
   if (!admin || !PasswordUtil.verify(password, admin.password)) {
     return res.json({ success: false, message: 'Incorrect username or password' });
   }
-  const token = JwtUtil.genToken({ id: admin._id, username: admin.username });
+  const token = JwtUtil.genToken({ role: 'admin', id: admin._id, username: admin.username });
   res.json({ success: true, message: 'Authentication successful', token });
 });
 
-router.get('/token', JwtUtil.checkToken, (req, res) => {
+router.get('/token', JwtUtil.checkAdmin, (req, res) => {
   const token = req.headers['x-access-token'];
   res.json({ success: true, message: 'Token is valid', token });
 });
 
 // ---- categories ----
-router.get('/categories', JwtUtil.checkToken, async (req, res) => {
+router.get('/categories', JwtUtil.checkAdmin, async (req, res) => {
   res.json(await Category.find({}));
 });
 
-router.post('/categories', JwtUtil.checkToken, async (req, res) => {
+router.post('/categories', JwtUtil.checkAdmin, async (req, res) => {
   res.json(await Category.create({ name: req.body.name }));
 });
 
-router.put('/categories/:id', JwtUtil.checkToken, async (req, res) => {
+router.put('/categories/:id', JwtUtil.checkAdmin, async (req, res) => {
   res.json(await Category.findByIdAndUpdate(req.params.id, { name: req.body.name }, { new: true }));
 });
 
-router.delete('/categories/:id', JwtUtil.checkToken, async (req, res) => {
+router.delete('/categories/:id', JwtUtil.checkAdmin, async (req, res) => {
   res.json(await Category.findByIdAndDelete(req.params.id));
 });
 
 // ---- products ----
-router.get('/products', JwtUtil.checkToken, async (req, res) => {
+router.get('/products', JwtUtil.checkAdmin, async (req, res) => {
   const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
   const total = await Product.countDocuments({});
   const products = await Product.find({})
@@ -52,7 +52,7 @@ router.get('/products', JwtUtil.checkToken, async (req, res) => {
   res.json({ products, noPages: Math.ceil(total / PAGE_SIZE), curPage: page });
 });
 
-router.post('/products', JwtUtil.checkToken, async (req, res) => {
+router.post('/products', JwtUtil.checkAdmin, async (req, res) => {
   const { name, price, category, image, brand, frameType, material } = req.body;
   const product = await Product.create({
     name, price, category, image, brand, frameType, material, cdate: Date.now(),
@@ -60,7 +60,7 @@ router.post('/products', JwtUtil.checkToken, async (req, res) => {
   res.json(product);
 });
 
-router.put('/products/:id', JwtUtil.checkToken, async (req, res) => {
+router.put('/products/:id', JwtUtil.checkAdmin, async (req, res) => {
   const { name, price, category, image, brand, frameType, material } = req.body;
   const product = await Product.findByIdAndUpdate(
     req.params.id,
@@ -70,7 +70,7 @@ router.put('/products/:id', JwtUtil.checkToken, async (req, res) => {
   res.json(product);
 });
 
-router.delete('/products/:id', JwtUtil.checkToken, async (req, res) => {
+router.delete('/products/:id', JwtUtil.checkAdmin, async (req, res) => {
   res.json(await Product.findByIdAndDelete(req.params.id));
 });
 
