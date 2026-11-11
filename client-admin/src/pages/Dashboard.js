@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Receipt, Tag, TrendUp, Users } from '@phosphor-icons/react';
 import api from '../api';
 
-const money = (n) => `$${Number(n).toLocaleString('en-US', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })}`;
+const money = (n) => `${Math.round(Number(n)).toLocaleString('vi-VN')} ₫`;
 const fmtDate = (t) => new Date(t).toLocaleString('vi-VN', { dateStyle: 'medium', timeStyle: 'short' });
 const STATUS = {
   PENDING: { label: 'Chờ duyệt', cls: 'pending' },

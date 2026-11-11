@@ -16,7 +16,7 @@ function readImage(file) {
   });
 }
 
-const money = (n) => `$${Number(n).toLocaleString('en-US', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 })}`;
+const money = (n) => `${Math.round(Number(n)).toLocaleString('vi-VN')} ₫`;
 
 export default function Products() {
   const { toast, confirm } = useUI();
@@ -131,8 +131,8 @@ export default function Products() {
               {errors.name && <p className="err" role="alert">{errors.name}</p>}
             </div>
             <div className="field">
-              <label htmlFor="pprice">Giá (USD)</label>
-              <input id="pprice" className="input mono" type="number" min="0" step="any" value={form.price} onChange={setField('price')} aria-invalid={errors.price ? 'true' : undefined} />
+              <label htmlFor="pprice">Giá (VNĐ)</label>
+              <input id="pprice" className="input mono" type="number" min="0" step="1000" value={form.price} onChange={setField('price')} aria-invalid={errors.price ? 'true' : undefined} />
               {errors.price && <p className="err" role="alert">{errors.price}</p>}
             </div>
             <div className="field">
