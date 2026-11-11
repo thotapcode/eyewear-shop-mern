@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
+import AuthShell from '../components/AuthShell';
+import Field from '../components/Field';
 
 export default function Login() {
   const { customer, login } = useAuth();
@@ -8,33 +10,34 @@ export default function Login() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [busy, setBusy] = useState(false);
 
   if (customer) return <Navigate to="/" replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+    setBusy(true);
     try {
       const result = await login(username.trim(), password);
       if (result.success) navigate('/');
       else setError(result.message);
     } catch {
-      setError('Không kết nối được tới server');
+      setError('Không kết nối được tới máy chủ, vui lòng thử lại.');
     }
+    setBusy(false);
   };
 
   return (
-    <form className="card-form" onSubmit={handleSubmit}>
-      <h2>Đăng nhập</h2>
-      <label>Tên đăng nhập
-        <input value={username} onChange={(e) => setUsername(e.target.value)} required autoFocus />
-      </label>
-      <label>Mật khẩu
-        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
-      </label>
-      {error && <p className="error">{error}</p>}
-      <button type="submit">Đăng nhập</button>
-      <p className="hint">Chưa có tài khoản? <Link to="/signup">Đăng ký</Link></p>
-    </form>
+    <AuthShell>
+      <h1>Đăng nhập</h1>
+      <form onSubmit={handleSubmit} style={{ display: 'grid', gap: 18 }} noValidate>
+        <Field id="username" label="Tên đăng nhập" value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" autoFocus required />
+        <Field id="password" label="Mật khẩu" type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" required />
+        {error && <p className="msg error" role="alert">{error}</p>}
+        <button className="btn btn-primary btn-block" type="submit" disabled={busy}>{busy ? 'Đang đăng nhập' : 'Đăng nhập'}</button>
+      </form>
+      <p className="auth-foot">Chưa có tài khoản? <Link to="/signup">Đăng ký</Link></p>
+    </AuthShell>
   );
 }
