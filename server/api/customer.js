@@ -9,7 +9,7 @@ const { Customer, Category, Product, Order } = require('../models/Models');
 const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const isId = (id) => /^[0-9a-fA-F]{24}$/.test(String(id));
 // không bao giờ trả mật khẩu và mã kích hoạt về client
-const publicCustomer = (c) => ({ _id: c._id, username: c.username, name: c.name, phone: c.phone, email: c.email, active: c.active });
+const publicCustomer = (c) => ({ _id: c._id, username: c.username, name: c.name, phone: c.phone, email: c.email, address: c.address || '', active: c.active });
 
 // ---- sản phẩm ----
 router.get('/categories', async (req, res) => {
@@ -110,8 +110,10 @@ async function requireActive(req, res, next) {
 // khách chỉ được sửa hồ sơ của chính mình
 router.put('/customers/:id', JwtUtil.checkCustomer, requireActive, async (req, res) => {
   if (String(req.decoded.id) !== req.params.id) return res.json({ success: false, message: 'Không có quyền sửa hồ sơ này' });
-  const { name, phone, email, password } = req.body;
-  const update = { name, phone, email };
+  const { name, phone, email, address, password } = req.body;
+  const text = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+  if (!text(name, 80) || !/^\S+@\S+\.\S+$/.test(text(email, 120))) return res.json({ success: false, message: 'Họ tên và email không hợp lệ' });
+  const update = { name: text(name, 80), phone: text(phone, 20), email: text(email, 120), address: text(address, 200) };
   if (password) update.password = PasswordUtil.hash(password);
   const customer = await Customer.findByIdAndUpdate(req.params.id, update, { new: true });
   res.json({ success: true, customer: publicCustomer(customer) });
@@ -120,10 +122,19 @@ router.put('/customers/:id', JwtUtil.checkCustomer, requireActive, async (req, r
 // ---- đặt hàng ----
 const MAX_QTY = 20;
 
+const PHONE = /^[0-9+\s.-]{9,15}$/;
+const text = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+
 // giá và tên luôn lấy từ cơ sở dữ liệu, không tin dữ liệu giá do client gửi lên
 router.post('/checkout', JwtUtil.checkCustomer, requireActive, async (req, res) => {
   const raw = Array.isArray(req.body.items) ? req.body.items : [];
   if (raw.length === 0) return res.json({ success: false, message: 'Giỏ hàng đang trống' });
+
+  const sh = req.body.shipping || {};
+  const shipping = { name: text(sh.name, 80), phone: text(sh.phone, 20), address: text(sh.address, 200), note: text(sh.note, 300) };
+  if (!shipping.name) return res.json({ success: false, message: 'Vui lòng nhập tên người nhận' });
+  if (!PHONE.test(shipping.phone)) return res.json({ success: false, message: 'Số điện thoại người nhận không hợp lệ' });
+  if (shipping.address.length < 8) return res.json({ success: false, message: 'Vui lòng nhập địa chỉ giao hàng đầy đủ' });
 
   const merged = new Map(); // gộp các dòng trùng sản phẩm
   for (const it of raw) {
@@ -139,15 +150,41 @@ router.post('/checkout', JwtUtil.checkCustomer, requireActive, async (req, res) 
     return res.json({ success: false, message: 'Có sản phẩm trong giỏ không còn bán, vui lòng kiểm tra lại giỏ hàng' });
   }
 
+  // trừ kho từng sản phẩm bằng một thao tác nguyên tử; thiếu hàng thì hoàn lại những sản phẩm đã trừ
+  const taken = [];
+  for (const p of products) {
+    const qty = merged.get(String(p._id));
+    const done = await Product.findOneAndUpdate({ _id: p._id, stock: { $gte: qty } }, { $inc: { stock: -qty } });
+    if (!done) {
+      await Product.bulkWrite(taken.map((t) => ({ updateOne: { filter: { _id: t.id }, update: { $inc: { stock: t.qty } } } })));
+      return res.json({ success: false, message: `"${p.name}" chỉ còn ${Math.max(p.stock || 0, 0)} sản phẩm trong kho` });
+    }
+    taken.push({ id: p._id, qty });
+  }
+
   const items = products.map((p) => ({ product: p._id, name: p.name, price: p.price, quantity: merged.get(String(p._id)) }));
   const total = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
-  const order = await Order.create({ cdate: Date.now(), total, status: 'PENDING', customer: req.decoded.id, items });
-  res.json({ success: true, message: 'Đặt hàng thành công', order });
+  try {
+    const order = await Order.create({ cdate: Date.now(), total, status: 'PENDING', payment: 'COD', shipping, customer: req.decoded.id, items });
+    res.json({ success: true, message: 'Đặt hàng thành công', order });
+  } catch (err) {
+    await Product.bulkWrite(taken.map((t) => ({ updateOne: { filter: { _id: t.id }, update: { $inc: { stock: t.qty } } } })));
+    res.json({ success: false, message: 'Không tạo được đơn hàng, vui lòng thử lại' });
+  }
 });
 
 router.get('/orders/customer/:cid', JwtUtil.checkCustomer, requireActive, async (req, res) => {
   if (String(req.decoded.id) !== req.params.cid) return res.json({ success: false, message: 'Không có quyền xem đơn hàng này' });
   res.json(await Order.find({ customer: req.params.cid }).sort({ cdate: -1 }));
+});
+
+// khách tự hủy đơn của mình khi đơn còn chờ duyệt, hàng được trả về kho
+router.put('/orders/cancel/:id', JwtUtil.checkCustomer, requireActive, async (req, res) => {
+  if (!isId(req.params.id)) return res.json({ success: false, message: 'Đơn hàng không tồn tại' });
+  const order = await Order.findOneAndUpdate({ _id: req.params.id, customer: req.decoded.id, status: 'PENDING' }, { status: 'CANCELED' }, { new: true });
+  if (!order) return res.json({ success: false, message: 'Chỉ hủy được đơn đang chờ duyệt của bạn' });
+  await Product.bulkWrite(order.items.map((i) => ({ updateOne: { filter: { _id: i.product }, update: { $inc: { stock: i.quantity } } } })));
+  res.json({ success: true, order });
 });
 
 module.exports = router;
