@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './AuthContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
 import Categories from './pages/Categories';
+import Products from './pages/Products';
 import './App.css';
 
 // chỉ cho vào khi đã đăng nhập
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/" element={<RequireAuth><Layout /></RequireAuth>}>
             <Route index element={<Navigate to="/categories" replace />} />
             <Route path="categories" element={<Categories />} />
+            <Route path="products" element={<Products />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
