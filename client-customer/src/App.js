@@ -1,26 +1,25 @@
-import axios from 'axios';
-import React, { Component } from 'react';
+import React from 'react';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { AuthProvider } from './AuthContext';
+import Layout from './components/Layout';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import Active from './pages/Active';
+import './App.css';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { message: 'Loading...' };
-  }
-
-  render() {
-    return (
-      <div>
-        <h2>Customer page</h2>
-        <p>{this.state.message}</p>
-      </div>
-    );
-  }
-
-  componentDidMount() {
-    axios.get('/hello').then((res) => {
-      this.setState({ message: res.data.message });
-    });
-  }
+export default function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route index element={<p>Chào mừng đến Eyewear Shop.</p>} />
+            <Route path="login" element={<Login />} />
+            <Route path="signup" element={<Signup />} />
+            <Route path="active" element={<Active />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
 }
-
-export default App;
