@@ -209,3 +209,17 @@ th { background: var(--ink); color: var(--bg); text-transform: uppercase; letter
 .input { border-color: var(--ink); }
 .input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
 @media (max-width: 860px) { .side { padding: 10px 14px; } }
+
+/* ---------- Đơn hàng, khách hàng ---------- */
+.block { display: block; }
+.inline-link { border-bottom: 1px solid var(--accent); font-weight: 600; color: var(--ink); }
+.icon-btn.ok:hover { background: color-mix(in srgb, var(--ok) 14%, transparent); color: var(--ok); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+.chip { height: 38px; padding: 0 16px; border: 1px solid var(--ink); background: transparent; font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: background-color 0.2s, color 0.2s; }
+.chip:hover { background: var(--surface-2); }
+.chip[aria-pressed='true'] { background: var(--ink); color: var(--bg); }
+.status { display: inline-block; padding: 3px 10px; border: 1px solid currentColor; font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; }
+.status.pending { color: var(--ink); }
+.status.approved { color: var(--ok); }
+.status.canceled { color: var(--danger); }
+a.icon-btn { text-decoration: none; }

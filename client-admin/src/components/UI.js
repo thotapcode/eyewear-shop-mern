@@ -68,7 +68,7 @@ function ConfirmDialog({ dialog, onClose }) {
         <p id="dlg-desc" className="muted">{dialog.message}</p>
         <div className="form-actions">
           <button ref={cancelRef} className="btn btn-ghost" onClick={() => onClose(false)}>Hủy</button>
-          <button className="btn btn-danger" onClick={() => onClose(true)}>{dialog.confirmLabel || 'Xóa'}</button>
+          <button className={`btn ${dialog.tone === 'primary' ? 'btn-primary' : 'btn-danger'}`} onClick={() => onClose(true)}>{dialog.confirmLabel || 'Xóa'}</button>
         </div>
       </motion.div>
     </motion.div>

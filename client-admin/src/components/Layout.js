@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { SignOut, SquaresFour, Tag } from '@phosphor-icons/react';
+import { Receipt, SignOut, SquaresFour, Tag, Users } from '@phosphor-icons/react';
 import { useAuth } from '../AuthContext';
 import GlassesMark from './GlassesMark';
 
@@ -25,6 +25,8 @@ export default function Layout() {
         <nav aria-label="Chức năng quản trị">
           <NavLink to="/categories"><SquaresFour size={20} /> Danh mục</NavLink>
           <NavLink to="/products"><Tag size={20} /> Sản phẩm</NavLink>
+          <NavLink to="/orders"><Receipt size={20} /> Đơn hàng</NavLink>
+          <NavLink to="/customers"><Users size={20} /> Khách hàng</NavLink>
         </nav>
         <div className="foot">
           <button onClick={handleLogout}><SignOut size={20} /> <span>Đăng xuất</span></button>

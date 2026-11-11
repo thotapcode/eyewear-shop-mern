@@ -7,6 +7,8 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Categories from './pages/Categories';
 import Products from './pages/Products';
+import Orders from './pages/Orders';
+import Customers from './pages/Customers';
 
 // chỉ cho vào khi đã đăng nhập
 function RequireAuth({ children }) {
@@ -28,6 +30,8 @@ export default function App() {
                 <Route index element={<Navigate to="/categories" replace />} />
                 <Route path="categories" element={<Categories />} />
                 <Route path="products" element={<Products />} />
+                <Route path="orders" element={<Orders />} />
+                <Route path="customers" element={<Customers />} />
               </Route>
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
