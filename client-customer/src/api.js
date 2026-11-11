@@ -14,4 +14,13 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// máy chủ báo token thiếu hoặc hết hạn thì phát sự kiện để AuthContext đăng xuất
+api.interceptors.response.use((res) => {
+  const d = res.data;
+  if (d && d.success === false && typeof d.message === 'string' && d.message.startsWith('Auth token') && getToken()) {
+    window.dispatchEvent(new Event('auth-expired'));
+  }
+  return res;
+});
+
 export default api;

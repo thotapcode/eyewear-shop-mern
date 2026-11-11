@@ -9,12 +9,11 @@ import QtyStepper from '../components/QtyStepper';
 import { formatPrice, imageSrc } from '../components/ProductCard';
 
 export default function Cart() {
-  const { items, setQty, remove, clear } = useCart();
+  const { items, setQty, remove } = useCart();
   const { customer, checking } = useAuth();
   const navigate = useNavigate();
   const [products, setProducts] = useState(null); // { [id]: sản phẩm | null }
   const [error, setError] = useState('');
-  const [busy, setBusy] = useState(false);
 
   // lấy thông tin mới nhất của từng sản phẩm trong giỏ
   const ids = items.map((i) => i.id).join(',');
@@ -28,24 +27,12 @@ export default function Cart() {
 
   const lines = items.map((i) => ({ ...i, product: products ? products[i.id] : undefined }));
   const missing = lines.filter((l) => l.product === null);
+  const short = lines.filter((l) => l.product && l.product.stock < l.qty);
   const total = lines.reduce((sum, l) => sum + (l.product ? l.product.price * l.qty : 0), 0);
 
   const handleCheckout = async () => {
     setError('');
-    if (!customer) return navigate('/login', { state: { from: '/cart' } });
-    setBusy(true);
-    try {
-      const res = await api.post('/checkout', { items: lines.map((l) => ({ product: l.id, quantity: l.qty })) });
-      if (res.data.success) {
-        clear();
-        navigate('/orders', { state: { placed: true } });
-      } else {
-        setError(res.data.message);
-      }
-    } catch {
-      setError('Không kết nối được tới máy chủ, vui lòng thử lại.');
-    }
-    setBusy(false);
+    navigate(customer ? '/checkout' : '/login', customer ? undefined : { state: { from: '/checkout' } });
   };
 
   if (items.length === 0) {
@@ -83,9 +70,10 @@ export default function Cart() {
                     </>
                   )}
                   <div className="line-actions">
-                    {p && <QtyStepper value={l.qty} onChange={(q) => setQty(l.id, q)} label={`Số lượng ${p.name}`} />}
+                    {p && <QtyStepper value={l.qty} max={Math.max(p.stock, 1)} onChange={(q) => setQty(l.id, q)} label={`Số lượng ${p.name}`} />}
                     <button className="icon-btn" onClick={() => remove(l.id)} aria-label="Xóa khỏi giỏ hàng" title="Xóa"><Trash size={20} /></button>
                   </div>
+                  {p && p.stock < l.qty && <p className="err-line" role="alert">{p.stock > 0 ? `Chỉ còn ${p.stock} sản phẩm, hãy giảm số lượng` : 'Hết hàng, hãy xóa khỏi giỏ'}</p>}
                 </div>
                 <p className="line-total mono">{p ? formatPrice(p.price * l.qty) : ''}</p>
               </div>
@@ -99,8 +87,8 @@ export default function Cart() {
           <div className="sum-row total"><span>Tổng cộng</span><span className="mono">{formatPrice(total)}</span></div>
           {missing.length > 0 && <p className="msg error" role="alert">Có sản phẩm không còn bán. Hãy xóa khỏi giỏ để thanh toán.</p>}
           {error && <p className="msg error" role="alert">{error}</p>}
-          <button className="btn btn-block" onClick={handleCheckout} disabled={busy || checking || missing.length > 0 || products === null}>
-            {busy ? 'Đang đặt hàng' : customer ? 'Đặt hàng' : 'Đăng nhập để đặt hàng'}
+          <button className="btn btn-block" onClick={handleCheckout} disabled={checking || missing.length > 0 || short.length > 0 || products === null}>
+            {customer ? 'Tiến hành thanh toán' : 'Đăng nhập để thanh toán'}
           </button>
           <Link to="/" className="auth-foot" style={{ textAlign: 'center' }}>Tiếp tục mua sắm</Link>
         </aside>

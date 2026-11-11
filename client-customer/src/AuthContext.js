@@ -12,6 +12,11 @@ export function AuthProvider({ children }) {
     setCustomer(null);
   }, []);
 
+  useEffect(() => {
+    window.addEventListener('auth-expired', logout);
+    return () => window.removeEventListener('auth-expired', logout);
+  }, [logout]);
+
   // khôi phục phiên đăng nhập từ token đã lưu
   useEffect(() => {
     if (!getToken()) return;

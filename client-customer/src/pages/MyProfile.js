@@ -6,13 +6,13 @@ import Field from '../components/Field';
 
 export default function MyProfile() {
   const { customer, setCustomer, checking } = useAuth();
-  const [form, setForm] = useState({ name: '', phone: '', email: '', password: '' });
+  const [form, setForm] = useState({ name: '', phone: '', email: '', address: '', password: '' });
   const [errors, setErrors] = useState({});
   const [result, setResult] = useState(null);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (customer) setForm({ name: customer.name || '', phone: customer.phone || '', email: customer.email || '', password: '' });
+    if (customer) setForm({ name: customer.name || '', phone: customer.phone || '', email: customer.email || '', address: customer.address || '', password: '' });
   }, [customer]);
 
   if (checking) return <div className="wrap page"><div className="skeleton" style={{ height: 320, maxWidth: 520, margin: '0 auto' }} /></div>;
@@ -58,6 +58,7 @@ export default function MyProfile() {
           <Field id="name" label="Họ và tên" value={form.name} onChange={setField('name')} error={errors.name} />
           <Field id="phone" label="Số điện thoại" type="tel" value={form.phone} onChange={setField('phone')} />
           <Field id="email" label="Email" type="email" value={form.email} onChange={setField('email')} error={errors.email} />
+          <Field id="address" label="Địa chỉ giao hàng mặc định" value={form.address} onChange={setField('address')} help="Được điền sẵn ở trang thanh toán" autoComplete="street-address" />
           <Field id="password" label="Mật khẩu mới" type="password" value={form.password} onChange={setField('password')} error={errors.password} help="Để trống nếu không muốn đổi" autoComplete="new-password" />
           {result && <p className={`msg ${result.success ? 'ok' : 'error'}`} role="status">{result.message}</p>}
           <button className="btn btn-primary" type="submit" disabled={busy} style={{ justifySelf: 'start' }}>{busy ? 'Đang lưu' : 'Lưu thay đổi'}</button>

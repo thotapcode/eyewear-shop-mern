@@ -19,7 +19,7 @@ export default function ProductCard({ product }) {
       <div className="card-body">
         {product.brand && <p className="card-brand">{product.brand}</p>}
         <h3 className="card-name">{product.name}</h3>
-        <p className="card-price mono">{formatPrice(product.price)}</p>
+        <p className="card-price mono">{formatPrice(product.price)}{product.stock === 0 && <span className="soldout">Hết hàng</span>}</p>
       </div>
     </Link>
   );

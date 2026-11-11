@@ -287,3 +287,14 @@ button, input, select { font: inherit; color: inherit; border-radius: 0; }
 .status.pending { color: var(--ink); }
 .status.approved { color: var(--ok); }
 .status.canceled { color: var(--danger); }
+
+/* ---------- Thanh toán, tồn kho, mô tả ---------- */
+.btn.sm { height: 40px; padding: 0 18px; }
+.pay-box { padding: 18px 20px; border: 1px solid var(--ink); background: var(--surface); display: grid; gap: 4px; }
+.sum-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.sum-list li { display: flex; justify-content: space-between; gap: 12px; }
+.soldout { margin-left: 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--danger); }
+.err-line { margin-top: 10px; font-size: 13px; color: var(--danger); }
+.desc { margin-top: 28px; color: var(--ink-2); line-height: 1.7; max-width: 52ch; white-space: pre-line; }
+.ship { padding: 16px 24px; border-top: 1px solid var(--line); display: grid; gap: 2px; font-size: 14px; }
+.order-actions { display: flex; align-items: center; gap: 10px; padding: 14px 24px; border-top: 1px solid var(--line); flex-wrap: wrap; }

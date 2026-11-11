@@ -50,6 +50,7 @@ export default function ProductDetail() {
 
   const src = imageSrc(product);
   const category = product.category;
+  const soldOut = !(product.stock > 0);
   const specs = [
     ['Danh mục', category && category.name],
     ['Loại gọng', product.frameType],
@@ -72,11 +73,13 @@ export default function ProductDetail() {
           <h1>{product.name}</h1>
           <p className="detail-price mono">{formatPrice(product.price)}</p>
           <div className="buy">
-            <QtyStepper value={qty} onChange={(q) => { setQty(q); setAdded(false); }} />
-            <button className="btn" onClick={() => { add(product._id, qty); setAdded(true); }}>
+            {soldOut ? <p className="status canceled">Hết hàng</p> : <QtyStepper value={qty} max={product.stock} onChange={(q) => { setQty(q); setAdded(false); }} />}
+            <button className="btn" disabled={soldOut} onClick={() => { add(product._id, qty); setAdded(true); }}>
               {added ? <><Check size={18} weight="bold" /> Đã thêm</> : <><ShoppingBag size={18} weight="bold" /> Thêm vào giỏ</>}
             </button>
           </div>
+          {!soldOut && product.stock <= 5 && <p className="help" style={{ marginTop: 12 }}>Chỉ còn {product.stock} sản phẩm</p>}
+          {product.description && <p className="desc">{product.description}</p>}
           {added && <p className="help" role="status" style={{ marginTop: 12 }}>Sản phẩm đã vào giỏ. <Link to="/cart" style={{ fontWeight: 600, borderBottom: '1px solid var(--accent)' }}>Xem giỏ hàng</Link></p>}
           {specs.length > 0 && (
             <dl className="specs">

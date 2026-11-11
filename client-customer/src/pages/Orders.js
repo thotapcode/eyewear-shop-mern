@@ -18,11 +18,27 @@ export default function Orders() {
   const { customer, checking } = useAuth();
   const location = useLocation();
   const [orders, setOrders] = useState(null);
+  const [asking, setAsking] = useState(null); // đơn đang hỏi xác nhận hủy
+  const [msg, setMsg] = useState('');
 
   useEffect(() => {
     if (!customer) return;
     api.get(`/orders/customer/${customer._id}`).then((res) => setOrders(Array.isArray(res.data) ? res.data : []));
   }, [customer]);
+
+  const load = () => api.get(`/orders/customer/${customer._id}`).then((res) => setOrders(Array.isArray(res.data) ? res.data : []));
+
+  const cancel = async (o) => {
+    setMsg('');
+    try {
+      const res = await api.put(`/orders/cancel/${o._id}`);
+      setMsg(res.data.success ? 'Đã hủy đơn hàng' : res.data.message);
+    } catch {
+      setMsg('Không kết nối được tới máy chủ, vui lòng thử lại.');
+    }
+    setAsking(null);
+    load();
+  };
 
   if (checking) return <div className="wrap page"><div className="skeleton" style={{ height: 240 }} /></div>;
   if (!customer) return <Navigate to="/login" replace state={{ from: '/orders' }} />;
@@ -36,6 +52,8 @@ export default function Orders() {
           <CheckCircle size={20} weight="fill" /> Đặt hàng thành công. Cửa hàng sẽ duyệt đơn và bạn theo dõi trạng thái ngay tại đây.
         </p>
       )}
+
+      {msg && <p className="msg ok" role="status" style={{ marginTop: 24 }}>{msg}</p>}
 
       <div className="orders">
         {orders === null && <div className="skeleton" style={{ height: 160 }} />}
@@ -65,7 +83,26 @@ export default function Orders() {
                   </li>
                 ))}
               </ul>
+              {o.shipping && o.shipping.name && (
+                <div className="ship">
+                  <p><strong>Giao đến:</strong> {o.shipping.name}, {o.shipping.phone}</p>
+                  <p className="muted">{o.shipping.address}</p>
+                  {o.shipping.note && <p className="muted">Ghi chú: {o.shipping.note}</p>}
+                  <p className="muted">Thanh toán khi nhận hàng</p>
+                </div>
+              )}
               <footer><span>Tổng cộng</span><strong className="mono">{formatPrice(o.total)}</strong></footer>
+              {o.status === 'PENDING' && (
+                <div className="order-actions">
+                  {asking === o._id ? (
+                    <>
+                      <span>Hủy đơn này?</span>
+                      <button className="btn sm" onClick={() => cancel(o)}>Xác nhận hủy</button>
+                      <button className="btn btn-ghost sm" onClick={() => setAsking(null)}>Giữ đơn</button>
+                    </>
+                  ) : <button className="btn btn-ghost sm" onClick={() => setAsking(o._id)}>Hủy đơn</button>}
+                </div>
+              )}
             </article>
           );
         })}

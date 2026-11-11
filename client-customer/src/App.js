@@ -13,6 +13,7 @@ import ProductDetail from './pages/ProductDetail';
 import MyProfile from './pages/MyProfile';
 import Cart from './pages/Cart';
 import Orders from './pages/Orders';
+import Checkout from './pages/Checkout';
 
 export default function App() {
   return (
@@ -33,6 +34,7 @@ export default function App() {
               <Route path="myprofile" element={<MyProfile />} />
               <Route path="cart" element={<Cart />} />
               <Route path="orders" element={<Orders />} />
+              <Route path="checkout" element={<Checkout />} />
             </Route>
           </Routes>
         </BrowserRouter>
