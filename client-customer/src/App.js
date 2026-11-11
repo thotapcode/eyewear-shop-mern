@@ -5,6 +5,9 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Active from './pages/Active';
+import Home from './pages/Home';
+import ProductList from './pages/ProductList';
+import ProductDetail from './pages/ProductDetail';
 import './App.css';
 
 export default function App() {
@@ -13,7 +16,10 @@ export default function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<Layout />}>
-            <Route index element={<p>Chào mừng đến Eyewear Shop.</p>} />
+            <Route index element={<Home />} />
+            <Route path="product/category/:cid" element={<ProductList />} />
+            <Route path="product/search/:keyword" element={<ProductList />} />
+            <Route path="product/:id" element={<ProductDetail />} />
             <Route path="login" element={<Login />} />
             <Route path="signup" element={<Signup />} />
             <Route path="active" element={<Active />} />
