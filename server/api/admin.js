@@ -79,7 +79,7 @@ async function readProduct(body) {
   const name = cleanName(body.name);
   if (!name || name.length > 120) return { error: 'Tên sản phẩm phải từ 1 đến 120 ký tự' };
   const price = Number(body.price);
-  if (body.price === '' || body.price === null || !Number.isFinite(price) || price < 0 || price > 10000000) return { error: 'Giá phải là số từ 0 đến 10.000.000' };
+  if (body.price === '' || body.price === null || !Number.isFinite(price) || price < 0 || price > 1000000000) return { error: 'Giá phải là số từ 0 đến 1.000.000.000 đồng' };
   const stock = body.stock === undefined || body.stock === '' ? 0 : Number(body.stock);
   if (!Number.isInteger(stock) || stock < 0 || stock > 100000) return { error: 'Tồn kho phải là số nguyên từ 0 đến 100.000' };
   if (!isId(body.category) || !(await Category.exists({ _id: body.category }))) return { error: 'Vui lòng chọn danh mục hợp lệ' };
