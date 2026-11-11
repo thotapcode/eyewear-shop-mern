@@ -18,6 +18,7 @@ export default function Checkout() {
   const [errors, setErrors] = useState({});
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [placed, setPlaced] = useState(false); // đặt xong thì không chuyển về giỏ hàng trống nữa
 
   // điền sẵn thông tin từ hồ sơ
   useEffect(() => {
@@ -35,7 +36,7 @@ export default function Checkout() {
 
   if (checking) return <div className="wrap page"><div className="skeleton" style={{ height: 320 }} /></div>;
   if (!customer) return <Navigate to="/login" replace state={{ from: '/checkout' }} />;
-  if (items.length === 0) return <Navigate to="/cart" replace />;
+  if (items.length === 0 && !placed) return <Navigate to="/cart" replace />;
 
   const setField = (key) => (e) => setForm({ ...form, [key]: e.target.value });
   const lines = items.map((i) => ({ ...i, product: products ? products[i.id] : undefined }));
@@ -55,8 +56,9 @@ export default function Checkout() {
     try {
       const res = await api.post('/checkout', { items: items.map((i) => ({ product: i.id, quantity: i.qty })), shipping: form });
       if (res.data.success) {
-        clear();
+        setPlaced(true);
         navigate('/orders', { state: { placed: true } });
+        clear();
       } else {
         setError(res.data.message);
       }
