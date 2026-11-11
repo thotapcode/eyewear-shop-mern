@@ -4,7 +4,10 @@ import GlassesMark from './GlassesMark';
 import Reveal from './Reveal';
 
 export const imageSrc = (p) => (p && p.image ? `data:image/jpeg;base64,${p.image}` : null);
-export const formatPrice = (price) => `$${Number(price).toLocaleString('en-US')}`;
+export const formatPrice = (price) => {
+  const n = Number(price);
+  return '$' + n.toLocaleString('en-US', { minimumFractionDigits: Number.isInteger(n) ? 0 : 2, maximumFractionDigits: 2 });
+};
 
 export default function ProductCard({ product }) {
   const src = imageSrc(product);

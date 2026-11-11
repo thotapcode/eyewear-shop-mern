@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../AuthContext';
 import AuthShell from '../components/AuthShell';
 import Field from '../components/Field';
@@ -7,12 +7,13 @@ import Field from '../components/Field';
 export default function Login() {
   const { customer, login } = useAuth();
   const navigate = useNavigate();
+  const from = (useLocation().state || {}).from || '/'; // quay lại trang đang làm dở, ví dụ giỏ hàng
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  if (customer) return <Navigate to="/" replace />;
+  if (customer) return <Navigate to={from} replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,7 +21,7 @@ export default function Login() {
     setBusy(true);
     try {
       const result = await login(username.trim(), password);
-      if (result.success) navigate('/');
+      if (result.success) navigate(from, { replace: true });
       else setError(result.message);
     } catch {
       setError('Không kết nối được tới máy chủ, vui lòng thử lại.');

@@ -1,16 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { ArrowLeft } from '@phosphor-icons/react';
+import { ArrowLeft, Check, ShoppingBag } from '@phosphor-icons/react';
 import api from '../api';
+import { useCart } from '../CartContext';
+import QtyStepper from '../components/QtyStepper';
 import GlassesMark from '../components/GlassesMark';
 import { formatPrice, imageSrc } from '../components/ProductCard';
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const { add } = useCart();
+  const [qty, setQty] = useState(1);
+  const [added, setAdded] = useState(false);
   const [product, setProduct] = useState(undefined); // undefined: đang tải, null: không tồn tại
 
   useEffect(() => {
     setProduct(undefined);
+    setQty(1);
+    setAdded(false);
     api.get(`/products/${id}`).then((res) => setProduct(res.data));
   }, [id]);
 
@@ -64,6 +71,13 @@ export default function ProductDetail() {
           {product.brand && <p className="brandline">{product.brand}</p>}
           <h1>{product.name}</h1>
           <p className="detail-price mono">{formatPrice(product.price)}</p>
+          <div className="buy">
+            <QtyStepper value={qty} onChange={(q) => { setQty(q); setAdded(false); }} />
+            <button className="btn" onClick={() => { add(product._id, qty); setAdded(true); }}>
+              {added ? <><Check size={18} weight="bold" /> Đã thêm</> : <><ShoppingBag size={18} weight="bold" /> Thêm vào giỏ</>}
+            </button>
+          </div>
+          {added && <p className="help" role="status" style={{ marginTop: 12 }}>Sản phẩm đã vào giỏ. <Link to="/cart" style={{ fontWeight: 600, borderBottom: '1px solid var(--accent)' }}>Xem giỏ hàng</Link></p>}
           {specs.length > 0 && (
             <dl className="specs">
               {specs.map(([k, v]) => (

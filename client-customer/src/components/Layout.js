@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { MagnifyingGlass, SignOut } from '@phosphor-icons/react';
+import { MagnifyingGlass, ShoppingBag, SignOut } from '@phosphor-icons/react';
 import api from '../api';
 import { useAuth } from '../AuthContext';
+import { useCart } from '../CartContext';
 import GlassesMark from './GlassesMark';
 
 export default function Layout() {
   const { customer, logout } = useAuth();
+  const { count } = useCart();
   const navigate = useNavigate();
   const location = useLocation();
   const [categories, setCategories] = useState([]);
@@ -49,6 +51,7 @@ export default function Layout() {
             <input id="q" value={keyword} onChange={(e) => setKeyword(e.target.value)} placeholder="Tìm gọng, thương hiệu" />
           </form>
           <div className="header-actions">
+            {customer && <Link to="/orders" className="link hide-sm">Đơn hàng</Link>}
             {customer ? (
               <>
                 <Link to="/myprofile" className="user-chip">
@@ -65,6 +68,10 @@ export default function Layout() {
                 <Link to="/signup" className="btn hide-sm" style={{ height: 42, padding: '0 20px' }}>Đăng ký</Link>
               </>
             )}
+            <Link to="/cart" className="icon-btn cart-btn" aria-label={`Giỏ hàng, ${count} sản phẩm`}>
+              <ShoppingBag size={24} />
+              {count > 0 && <span className="cart-badge mono">{count}</span>}
+            </Link>
           </div>
         </div>
       </header>
