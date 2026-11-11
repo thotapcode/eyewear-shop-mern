@@ -1,7 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { ImageSquare, PencilSimple, Plus, Tag, Trash } from '@phosphor-icons/react';
 import api from '../api';
+import { useUI } from '../components/UI';
 
 const EMPTY = { name: '', price: '', category: '', brand: '', frameType: '', material: '', image: '' };
+const MAX_IMAGE = 1.5 * 1024 * 1024; // giới hạn 1,5 MB vì ảnh lưu base64 trong cơ sở dữ liệu miễn phí
 
 // đọc file ảnh thành chuỗi base64 (bỏ phần "data:image/...;base64,")
 function readImage(file) {
@@ -13,14 +16,18 @@ function readImage(file) {
   });
 }
 
+const money = (n) => `$${Number(n).toLocaleString('en-US')}`;
+
 export default function Products() {
-  const [products, setProducts] = useState([]);
+  const { toast, confirm } = useUI();
+  const [products, setProducts] = useState(null);
   const [categories, setCategories] = useState([]);
   const [page, setPage] = useState(1);
   const [noPages, setNoPages] = useState(1);
   const [form, setForm] = useState(EMPTY);
+  const [errors, setErrors] = useState({});
   const [editingId, setEditingId] = useState(null);
-  const [message, setMessage] = useState('');
+  const [open, setOpen] = useState(false);
 
   const load = useCallback(async (p) => {
     const res = await api.get(`/products?page=${p}`);
@@ -39,98 +46,171 @@ export default function Products() {
 
   const handleImage = async (e) => {
     const file = e.target.files[0];
-    if (file) setForm({ ...form, image: await readImage(file) });
+    if (!file) return;
+    if (file.size > MAX_IMAGE) return toast('Ảnh quá lớn, vui lòng chọn ảnh dưới 1,5 MB', 'error');
+    setForm({ ...form, image: await readImage(file) });
   };
 
-  const reset = () => { setForm(EMPTY); setEditingId(null); };
+  const reset = () => { setForm(EMPTY); setErrors({}); setEditingId(null); setOpen(false); };
+
+  const validate = () => {
+    const err = {};
+    if (!form.name.trim()) err.name = 'Vui lòng nhập tên sản phẩm';
+    if (form.price === '' || !(Number(form.price) >= 0)) err.price = 'Giá phải là số từ 0 trở lên';
+    if (!form.category) err.category = 'Vui lòng chọn danh mục';
+    return err;
+  };
 
   const handleSave = async (e) => {
     e.preventDefault();
-    const price = Number(form.price);
-    if (!form.name.trim() || !form.category || !(price >= 0) || form.price === '') {
-      return setMessage('Vui lòng nhập tên, giá và chọn danh mục');
+    const err = validate();
+    setErrors(err);
+    if (Object.keys(err).length) return;
+    const body = { ...form, name: form.name.trim(), price: Number(form.price) };
+    try {
+      if (editingId) await api.put(`/products/${editingId}`, body);
+      else await api.post('/products', body);
+      toast(editingId ? 'Đã cập nhật sản phẩm' : 'Đã thêm sản phẩm');
+      reset();
+      load(page);
+    } catch {
+      toast('Không lưu được, vui lòng thử lại', 'error');
     }
-    const body = { ...form, name: form.name.trim(), price };
-    if (editingId) await api.put(`/products/${editingId}`, body);
-    else await api.post('/products', body);
-    setMessage(editingId ? 'Đã cập nhật sản phẩm' : 'Đã thêm sản phẩm');
-    reset();
-    load(page);
   };
 
   const handleEdit = (p) => {
     setEditingId(p._id);
+    setErrors({});
     setForm({
       name: p.name || '', price: p.price ?? '', category: p.category ? p.category._id : '',
       brand: p.brand || '', frameType: p.frameType || '', material: p.material || '', image: p.image || '',
     });
-    setMessage('');
+    setOpen(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleDelete = async (p) => {
-    if (!window.confirm(`Xóa sản phẩm "${p.name}"?`)) return;
-    await api.delete(`/products/${p._id}`);
-    setMessage('Đã xóa sản phẩm');
-    if (editingId === p._id) reset();
-    load(page);
+    const ok = await confirm({ title: 'Xóa sản phẩm?', message: `Sản phẩm "${p.name}" sẽ bị xóa khỏi cửa hàng và không khôi phục được.` });
+    if (!ok) return;
+    try {
+      await api.delete(`/products/${p._id}`);
+      toast('Đã xóa sản phẩm');
+      if (editingId === p._id) reset();
+      load(page);
+    } catch {
+      toast('Không xóa được, vui lòng thử lại', 'error');
+    }
   };
 
   return (
     <div>
-      <h2>Quản lý sản phẩm</h2>
-      <form className="form" onSubmit={handleSave}>
-        <div className="row">
-          <label>Tên sản phẩm<input value={form.name} onChange={setField('name')} /></label>
-          <label>Giá (USD)<input type="number" min="0" value={form.price} onChange={setField('price')} /></label>
-          <label>Danh mục
-            <select value={form.category} onChange={setField('category')}>
-              <option value="">-- Chọn danh mục --</option>
-              {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
-            </select>
-          </label>
+      <div className="page-head">
+        <div>
+          <h1>Sản phẩm</h1>
+          <p className="muted">Mỗi trang hiển thị tối đa 4 sản phẩm, mới nhất ở đầu.</p>
         </div>
-        <div className="row">
-          <label>Thương hiệu<input value={form.brand} onChange={setField('brand')} placeholder="Ray-Ban, Oakley..." /></label>
-          <label>Loại gọng<input value={form.frameType} onChange={setField('frameType')} placeholder="Tròn, vuông, mắt mèo..." /></label>
-          <label>Chất liệu<input value={form.material} onChange={setField('material')} placeholder="Titan, nhựa, kim loại..." /></label>
-        </div>
-        <label>Hình ảnh<input type="file" accept="image/*" onChange={handleImage} /></label>
-        {form.image && <img className="thumb" alt="xem trước" src={`data:image/jpeg;base64,${form.image}`} />}
-        <div className="actions">
-          <button type="submit">{editingId ? 'Cập nhật' : 'Thêm'}</button>
-          {editingId && <button type="button" className="secondary" onClick={reset}>Hủy</button>}
-        </div>
-        {message && <p>{message}</p>}
-      </form>
+        {!open && <button className="btn btn-primary" onClick={() => setOpen(true)}><Plus size={18} weight="bold" /> Thêm sản phẩm</button>}
+      </div>
 
-      <table>
-        <thead>
-          <tr><th>Ảnh</th><th>Tên</th><th>Giá</th><th>Danh mục</th><th>Thương hiệu</th><th>Loại gọng</th><th>Thao tác</th></tr>
-        </thead>
-        <tbody>
-          {products.map((p) => (
-            <tr key={p._id}>
-              <td>{p.image && <img className="thumb" alt={p.name} src={`data:image/jpeg;base64,${p.image}`} />}</td>
-              <td>{p.name}</td>
-              <td>{p.price}</td>
-              <td>{p.category ? p.category.name : ''}</td>
-              <td>{p.brand}</td>
-              <td>{p.frameType}</td>
-              <td className="actions">
-                <button onClick={() => handleEdit(p)}>Sửa</button>
-                <button className="danger" onClick={() => handleDelete(p)}>Xóa</button>
-              </td>
-            </tr>
-          ))}
-          {products.length === 0 && <tr><td colSpan="7">Chưa có sản phẩm nào</td></tr>}
-        </tbody>
-      </table>
+      {open && (
+        <form className="card form-card" onSubmit={handleSave} noValidate>
+          <h2>{editingId ? 'Sửa sản phẩm' : 'Thêm sản phẩm'}</h2>
+          <div className="form-grid">
+            <div className="field">
+              <label htmlFor="pname">Tên sản phẩm</label>
+              <input id="pname" className="input" value={form.name} onChange={setField('name')} aria-invalid={errors.name ? 'true' : undefined} />
+              {errors.name && <p className="err" role="alert">{errors.name}</p>}
+            </div>
+            <div className="field">
+              <label htmlFor="pprice">Giá (USD)</label>
+              <input id="pprice" className="input mono" type="number" min="0" step="any" value={form.price} onChange={setField('price')} aria-invalid={errors.price ? 'true' : undefined} />
+              {errors.price && <p className="err" role="alert">{errors.price}</p>}
+            </div>
+            <div className="field">
+              <label htmlFor="pcat">Danh mục</label>
+              <select id="pcat" className="input" value={form.category} onChange={setField('category')} aria-invalid={errors.category ? 'true' : undefined}>
+                <option value="">Chọn danh mục</option>
+                {categories.map((c) => <option key={c._id} value={c._id}>{c.name}</option>)}
+              </select>
+              {errors.category && <p className="err" role="alert">{errors.category}</p>}
+            </div>
+            <div className="field">
+              <label htmlFor="pbrand">Thương hiệu</label>
+              <input id="pbrand" className="input" value={form.brand} onChange={setField('brand')} placeholder="Ray-Ban, Oakley" />
+            </div>
+            <div className="field">
+              <label htmlFor="pframe">Loại gọng</label>
+              <input id="pframe" className="input" value={form.frameType} onChange={setField('frameType')} placeholder="Tròn, vuông, mắt mèo" />
+            </div>
+            <div className="field">
+              <label htmlFor="pmat">Chất liệu</label>
+              <input id="pmat" className="input" value={form.material} onChange={setField('material')} placeholder="Titan, nhựa, kim loại" />
+            </div>
+          </div>
+          <div className="field">
+            <label htmlFor="pimg">Hình ảnh</label>
+            <label className="drop" htmlFor="pimg">
+              {form.image ? <img src={`data:image/jpeg;base64,${form.image}`} alt="Xem trước" /> : <span className="ph"><ImageSquare size={28} /></span>}
+              <span><strong>{form.image ? 'Đổi ảnh' : 'Chọn ảnh sản phẩm'}</strong><span className="help">PNG hoặc JPG, dưới 1,5 MB</span></span>
+              <input id="pimg" type="file" accept="image/*" onChange={handleImage} />
+            </label>
+          </div>
+          <div className="form-actions">
+            <button className="btn btn-primary" type="submit">{editingId ? 'Cập nhật' : 'Thêm sản phẩm'}</button>
+            <button className="btn btn-ghost" type="button" onClick={reset}>Hủy</button>
+          </div>
+        </form>
+      )}
 
-      <div className="pager">
-        {Array.from({ length: noPages }, (_, i) => i + 1).map((n) => (
-          <button key={n} className={n === page ? 'current' : ''} onClick={() => setPage(n)}>{n}</button>
-        ))}
+      <div className="card table-card">
+        <div className="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Sản phẩm</th><th>Danh mục</th><th>Loại gọng</th><th className="num">Giá</th><th className="num" style={{ width: 110 }}>Thao tác</th></tr>
+            </thead>
+            <tbody>
+              {products === null && [0, 1, 2].map((i) => (
+                <tr key={i}><td colSpan="5"><div className="skeleton" style={{ height: 52 }} /></td></tr>
+              ))}
+              {products && products.map((p) => (
+                <tr key={p._id}>
+                  <td>
+                    <div className="cell-main">
+                      {p.image ? <img className="thumb" src={`data:image/jpeg;base64,${p.image}`} alt="" /> : <span className="thumb blank"><ImageSquare size={22} /></span>}
+                      <div><strong>{p.name}</strong><span className="muted">{p.brand}</span></div>
+                    </div>
+                  </td>
+                  <td>{p.category ? p.category.name : <span className="muted">Chưa có</span>}</td>
+                  <td>{p.frameType || <span className="muted">-</span>}</td>
+                  <td className="num mono">{money(p.price)}</td>
+                  <td>
+                    <div className="row-actions">
+                      <button className="icon-btn" onClick={() => handleEdit(p)} aria-label={`Sửa ${p.name}`} title="Sửa"><PencilSimple size={18} /></button>
+                      <button className="icon-btn danger" onClick={() => handleDelete(p)} aria-label={`Xóa ${p.name}`} title="Xóa"><Trash size={18} /></button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {products && products.length === 0 && (
+          <div className="empty">
+            <Tag size={40} />
+            <strong>Chưa có sản phẩm nào</strong>
+            <span>Bấm Thêm sản phẩm để tạo sản phẩm đầu tiên.</span>
+          </div>
+        )}
+        {noPages > 1 && (
+          <div className="pager">
+            <span>Trang {page} / {noPages}</span>
+            <div className="pager-nums">
+              {Array.from({ length: noPages }, (_, i) => i + 1).map((n) => (
+                <button key={n} aria-current={n === page ? 'page' : undefined} aria-label={`Trang ${n}`} onClick={() => setPage(n)}>{n}</button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
