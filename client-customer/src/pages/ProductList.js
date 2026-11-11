@@ -6,11 +6,11 @@ import { ProductGrid } from '../components/ProductCard';
 // dùng chung cho hai trang: /product/category/:cid và /product/search/:keyword
 export default function ProductList() {
   const { cid, keyword } = useParams();
-  const [products, setProducts] = useState([]);
+  const [products, setProducts] = useState(null);
   const [title, setTitle] = useState('');
 
   useEffect(() => {
-    setProducts([]);
+    setProducts(null);
     if (cid) {
       setTitle('Sản phẩm theo danh mục');
       api.get(`/products/category/${cid}`).then((res) => {

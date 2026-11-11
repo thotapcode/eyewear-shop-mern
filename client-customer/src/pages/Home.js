@@ -3,7 +3,7 @@ import api from '../api';
 import { ProductGrid } from '../components/ProductCard';
 
 export default function Home() {
-  const [newProducts, setNewProducts] = useState([]);
+  const [newProducts, setNewProducts] = useState(null);
   const [hotProducts, setHotProducts] = useState([]);
 
   useEffect(() => {

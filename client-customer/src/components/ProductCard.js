@@ -16,7 +16,9 @@ export default function ProductCard({ product }) {
   );
 }
 
+// products là null khi đang tải dữ liệu
 export function ProductGrid({ products, empty = 'Không có sản phẩm nào' }) {
+  if (products === null) return <p>Đang tải...</p>;
   if (products.length === 0) return <p>{empty}</p>;
   return (
     <div className="grid">

@@ -1,12 +1,16 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import api from '../api';
+import { useAuth } from '../AuthContext';
 
 const EMPTY = { username: '', password: '', name: '', phone: '', email: '' };
 
 export default function Signup() {
+  const { customer } = useAuth();
   const [form, setForm] = useState(EMPTY);
   const [result, setResult] = useState(null);
+
+  if (customer) return <Navigate to="/" replace />;
 
   const setField = (key) => (e) => setForm({ ...form, [key]: e.target.value });
 
