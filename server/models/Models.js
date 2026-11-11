@@ -50,7 +50,19 @@ const OrderSchema = mongoose.Schema({
   }],
 }, { versionKey: false });
 
+// banner quảng cáo ở đầu trang chủ; sortOrder nhỏ hiện trước, chỉ banner active=true mới hiện cho khách
+const BannerSchema = mongoose.Schema({
+  title: String,
+  subtitle: String,
+  cta: String, // chữ trên nút
+  link: String, // đường dẫn nội bộ như /product/category/<id>
+  image: String, // base64
+  active: Boolean,
+  sortOrder: Number,
+}, { versionKey: false });
+
 module.exports = {
+  Banner: mongoose.model('Banner', BannerSchema),
   Admin: mongoose.model('Admin', AdminSchema),
   Category: mongoose.model('Category', CategorySchema),
   Product: mongoose.model('Product', ProductSchema),

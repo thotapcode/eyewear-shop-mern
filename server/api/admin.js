@@ -3,7 +3,7 @@ const router = express.Router();
 const JwtUtil = require('../utils/JwtUtil');
 const PasswordUtil = require('../utils/PasswordUtil');
 const MailUtil = require('../utils/MailUtil');
-const { Admin, Category, Product, Customer, Order } = require('../models/Models');
+const { Admin, Category, Product, Customer, Order, Banner } = require('../models/Models');
 
 const PAGE_SIZE = 8;
 
@@ -169,6 +169,54 @@ router.get('/customers/sendmail/:id', JwtUtil.checkAdmin, async (req, res) => {
     console.error('Gửi mail thất bại:', err.message);
     res.json({ success: false, message: 'Gửi email thất bại' });
   }
+});
+
+// ---- banner ----
+function readBanner(body) {
+  const t = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+  const title = t(body.title, 80);
+  if (!title) return { error: 'Vui lòng nhập tiêu đề banner' };
+  const link = t(body.link, 200);
+  if (link && !/^(\/(?!\/)|https?:\/\/)/.test(link)) return { error: 'Liên kết phải bắt đầu bằng / hoặc http' };
+  const image = typeof body.image === 'string' ? body.image : '';
+  if (!image) return { error: 'Vui lòng chọn ảnh banner' };
+  if (image.length > 4000000) return { error: 'Ảnh banner quá lớn, vui lòng chọn ảnh dưới 2,5 MB' };
+  const sortOrder = Number(body.sortOrder);
+  return {
+    data: {
+      title, subtitle: t(body.subtitle, 160), cta: t(body.cta, 30), link, image,
+      active: body.active !== false, sortOrder: Number.isFinite(sortOrder) ? sortOrder : 0,
+    },
+  };
+}
+
+router.get('/banners', JwtUtil.checkAdmin, async (req, res) => {
+  res.json(await Banner.find({}).sort({ sortOrder: 1 }));
+});
+
+router.post('/banners', JwtUtil.checkAdmin, async (req, res) => {
+  const { error, data } = readBanner(req.body);
+  if (error) return res.json({ success: false, message: error });
+  res.json(await Banner.create(data));
+});
+
+router.put('/banners/:id', JwtUtil.checkAdmin, async (req, res) => {
+  if (!isId(req.params.id)) return res.json({ success: false, message: 'Banner không tồn tại' });
+  const { error, data } = readBanner(req.body);
+  if (error) return res.json({ success: false, message: error });
+  res.json((await Banner.findByIdAndUpdate(req.params.id, data, { new: true })) || { success: false, message: 'Banner không tồn tại' });
+});
+
+// bật hoặc tắt hiển thị nhanh, không phải gửi lại ảnh
+router.put('/banners/active/:id', JwtUtil.checkAdmin, async (req, res) => {
+  if (!isId(req.params.id)) return res.json({ success: false, message: 'Banner không tồn tại' });
+  const banner = await Banner.findByIdAndUpdate(req.params.id, { active: req.body.active === true }, { new: true, select: '-image' });
+  res.json(banner ? { success: true, banner } : { success: false, message: 'Banner không tồn tại' });
+});
+
+router.delete('/banners/:id', JwtUtil.checkAdmin, async (req, res) => {
+  if (!isId(req.params.id)) return res.json({ success: false, message: 'Banner không tồn tại' });
+  res.json((await Banner.findByIdAndDelete(req.params.id)) || { success: false, message: 'Banner không tồn tại' });
 });
 
 // ---- thống kê cho trang tổng quan ----

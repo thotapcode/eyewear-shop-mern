@@ -4,7 +4,7 @@ const router = express.Router();
 const JwtUtil = require('../utils/JwtUtil');
 const PasswordUtil = require('../utils/PasswordUtil');
 const MailUtil = require('../utils/MailUtil');
-const { Customer, Category, Product, Order } = require('../models/Models');
+const { Customer, Category, Product, Order, Banner } = require('../models/Models');
 
 const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const isId = (id) => /^[0-9a-fA-F]{24}$/.test(String(id));
@@ -14,6 +14,10 @@ const publicCustomer = (c) => ({ _id: c._id, username: c.username, name: c.name,
 // ---- sản phẩm ----
 router.get('/categories', async (req, res) => {
   res.json(await Category.find({}));
+});
+
+router.get('/banners', async (req, res) => {
+  res.json(await Banner.find({ active: true }).sort({ sortOrder: 1 }));
 });
 
 router.get('/products/new', async (req, res) => {
