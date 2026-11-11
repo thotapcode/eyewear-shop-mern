@@ -5,6 +5,7 @@ import { AuthProvider, useAuth } from './AuthContext';
 import { UIProvider } from './components/UI';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import Dashboard from './pages/Dashboard';
 import Categories from './pages/Categories';
 import Products from './pages/Products';
 import Orders from './pages/Orders';
@@ -27,7 +28,8 @@ export default function App() {
             <Routes>
               <Route path="/login" element={<Login />} />
               <Route path="/" element={<RequireAuth><Layout /></RequireAuth>}>
-                <Route index element={<Navigate to="/categories" replace />} />
+                <Route index element={<Navigate to="/dashboard" replace />} />
+                <Route path="dashboard" element={<Dashboard />} />
                 <Route path="categories" element={<Categories />} />
                 <Route path="products" element={<Products />} />
                 <Route path="orders" element={<Orders />} />

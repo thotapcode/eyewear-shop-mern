@@ -91,7 +91,7 @@ export default function Orders() {
                 return (
                   <tr key={o._id}>
                     <td><strong className="mono">#{o._id.slice(-6).toUpperCase()}</strong><span className="muted block">{fmtDate(o.cdate)}</span></td>
-                    <td>{o.customer ? (<><strong>{o.customer.name}</strong><span className="muted block">@{o.customer.username}</span></>) : <span className="muted">Khách đã bị xóa</span>}</td>
+                    <td>{o.customer ? (<><strong>{o.customer.name}</strong><span className="muted block">@{o.customer.username}</span></>) : <span className="muted">Khách đã bị xóa</span>}{o.shipping && o.shipping.address && (<span className="ship-line"><span className="block">Giao: {o.shipping.name}, {o.shipping.phone}</span><span className="block muted">{o.shipping.address}</span>{o.shipping.note && <span className="block muted">Ghi chú: {o.shipping.note}</span>}</span>)}</td>
                     <td>
                       {o.items.slice(0, 3).map((i, idx) => <span className="block" key={idx}>{i.name} <span className="muted">x {i.quantity}</span></span>)}
                       {o.items.length > 3 && <span className="muted block">và {o.items.length - 3} sản phẩm khác</span>}

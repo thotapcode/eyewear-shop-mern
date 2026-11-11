@@ -13,7 +13,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
 
-  if (token) return <Navigate to="/categories" replace />;
+  if (token) return <Navigate to="/dashboard" replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,7 +21,7 @@ export default function Login() {
     setBusy(true);
     try {
       const result = await login(username.trim(), password);
-      if (result.success) navigate('/categories');
+      if (result.success) navigate('/dashboard');
       else setError(result.message);
     } catch {
       setError('Không kết nối được tới máy chủ, vui lòng thử lại.');

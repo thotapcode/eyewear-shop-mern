@@ -31,6 +31,12 @@ export function AuthProvider({ children }) {
     setTokenState(null);
   };
 
+  useEffect(() => {
+    window.addEventListener('auth-expired', logout);
+    return () => window.removeEventListener('auth-expired', logout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <AuthContext.Provider value={{ token, checking, login, logout }}>
       {children}

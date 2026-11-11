@@ -24,8 +24,8 @@ export default function Categories() {
     const value = name.trim();
     if (!value) return setError('Vui lòng nhập tên danh mục');
     try {
-      if (selected) await api.put(`/categories/${selected._id}`, { name: value });
-      else await api.post('/categories', { name: value });
+      const res = selected ? await api.put(`/categories/${selected._id}`, { name: value }) : await api.post('/categories', { name: value });
+      if (res.data.success === false) return toast(res.data.message, 'error');
       toast(selected ? 'Đã cập nhật danh mục' : 'Đã thêm danh mục');
       reset();
       load();
@@ -35,10 +35,11 @@ export default function Categories() {
   };
 
   const handleDelete = async (c) => {
-    const ok = await confirm({ title: 'Xóa danh mục?', message: `Danh mục "${c.name}" sẽ bị xóa. Các sản phẩm thuộc danh mục này sẽ không còn hiển thị tên danh mục.` });
+    const ok = await confirm({ title: 'Xóa danh mục?', message: `Danh mục "${c.name}" sẽ bị xóa. Chỉ xóa được khi danh mục không còn sản phẩm.` });
     if (!ok) return;
     try {
-      await api.delete(`/categories/${c._id}`);
+      const res = await api.delete(`/categories/${c._id}`);
+      if (res.data.success === false) return toast(res.data.message, 'error');
       toast('Đã xóa danh mục');
       if (selected && selected._id === c._id) reset();
       load();
