@@ -8,6 +8,7 @@ import Active from './pages/Active';
 import Home from './pages/Home';
 import ProductList from './pages/ProductList';
 import ProductDetail from './pages/ProductDetail';
+import MyProfile from './pages/MyProfile';
 import './App.css';
 
 export default function App() {
@@ -23,6 +24,7 @@ export default function App() {
             <Route path="login" element={<Login />} />
             <Route path="signup" element={<Signup />} />
             <Route path="active" element={<Active />} />
+            <Route path="myprofile" element={<MyProfile />} />
           </Route>
         </Routes>
       </BrowserRouter>
