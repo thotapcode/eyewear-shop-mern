@@ -4,6 +4,7 @@ import { motion } from 'motion/react';
 import { ArrowRight, ArrowUpRight } from '@phosphor-icons/react';
 import api from '../api';
 import { useAuth } from '../AuthContext';
+import BannerSlider from '../components/BannerSlider';
 import GlassesMark from '../components/GlassesMark';
 import Reveal from '../components/Reveal';
 import { ProductGrid, RowCard, formatPrice, imageSrc } from '../components/ProductCard';
@@ -16,11 +17,13 @@ const rise = (delay) => ({
 
 export default function Home() {
   const { customer } = useAuth();
+  const [banners, setBanners] = useState(null); // null: đang tải
   const [categories, setCategories] = useState(null);
   const [newProducts, setNewProducts] = useState(null);
   const [hotProducts, setHotProducts] = useState([]);
 
   useEffect(() => {
+    api.get('/banners').then((res) => setBanners(Array.isArray(res.data) ? res.data : [])).catch(() => setBanners([]));
     api.get('/categories').then((res) => setCategories(res.data));
     api.get('/products/new').then((res) => setNewProducts(res.data));
     api.get('/products/hot').then((res) => setHotProducts(res.data));
@@ -33,8 +36,13 @@ export default function Home() {
     ? Array.from({ length: Math.max(8, categories.length * 4) }, (_, i) => categories[i % categories.length])
     : [];
 
+  const hasBanners = banners && banners.length > 0;
+
   return (
     <>
+      {hasBanners && <BannerSlider banners={banners} />}
+      {banners === null && <div className="banner skeleton" aria-busy="true" />}
+      {banners && banners.length === 0 && (
       <div className="wrap">
         <section className="hero">
           <div className="hero-copy">
@@ -69,6 +77,7 @@ export default function Home() {
           </motion.div>
         </section>
       </div>
+      )}
 
       {tickerItems.length > 0 && (
         <div className="ticker" aria-hidden="true">
