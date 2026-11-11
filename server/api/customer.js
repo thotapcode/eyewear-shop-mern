@@ -74,7 +74,7 @@ router.post('/signup', async (req, res) => {
 router.post('/active', async (req, res) => {
   const { id, token } = req.body;
   if (!isId(id) || !token) return res.json({ success: false, message: 'Liên kết kích hoạt không hợp lệ' });
-  const customer = await Customer.findOneAndUpdate({ _id: id, token }, { active: 1 }, { new: true });
+  const customer = await Customer.findOneAndUpdate({ _id: id, token, active: 0 }, { active: 1 }, { new: true }); // tài khoản bị khóa không tự mở lại được bằng liên kết cũ
   res.json(customer
     ? { success: true, message: 'Kích hoạt thành công' }
     : { success: false, message: 'Liên kết kích hoạt không hợp lệ' });
@@ -87,6 +87,7 @@ router.post('/login', async (req, res) => {
   if (!customer || !PasswordUtil.verify(password, customer.password)) {
     return res.json({ success: false, message: 'Sai tên đăng nhập hoặc mật khẩu' });
   }
+  if (customer.active === 2) return res.json({ success: false, message: 'Tài khoản đã bị khóa, vui lòng liên hệ cửa hàng' });
   if (customer.active !== 1) return res.json({ success: false, message: 'Tài khoản chưa được kích hoạt' });
   const token = JwtUtil.genToken({ role: 'customer', id: customer._id, username: customer.username });
   res.json({ success: true, message: 'Đăng nhập thành công', token, customer: publicCustomer(customer) });

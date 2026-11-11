@@ -27,7 +27,7 @@ const CustomerSchema = mongoose.Schema({
   name: String,
   phone: String,
   email: String,
-  active: Number, // 0: chưa kích hoạt, 1: đã kích hoạt
+  active: Number, // 0: chưa kích hoạt, 1: đang hoạt động, 2: bị admin khóa
   token: String, // mã kích hoạt gửi qua email
 }, { versionKey: false });
 
