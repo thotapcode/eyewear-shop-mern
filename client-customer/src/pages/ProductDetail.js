@@ -18,7 +18,7 @@ export default function ProductDetail() {
     setProduct(undefined);
     setQty(1);
     setAdded(false);
-    api.get(`/products/${id}`).then((res) => setProduct(res.data));
+    api.get(`/products/${id}`).then((res) => setProduct(res.data && res.data._id ? res.data : null)).catch(() => setProduct(null));
   }, [id]);
 
   if (product === undefined) {

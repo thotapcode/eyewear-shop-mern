@@ -16,7 +16,7 @@ export default function Layout() {
   const [keyword, setKeyword] = useState('');
 
   useEffect(() => {
-    api.get('/categories').then((res) => setCategories(res.data));
+    api.get('/categories').then((res) => setCategories(Array.isArray(res.data) ? res.data : [])).catch(() => setCategories([]));
   }, []);
 
   useEffect(() => { window.scrollTo(0, 0); }, [location.pathname]);
@@ -97,7 +97,7 @@ export default function Layout() {
               {!customer && <Link to="/signup">Tạo tài khoản</Link>}
             </div>
           </div>
-          <div className="footer-bottom">© 2026 Eyewear Shop</div>
+          <div className="footer-bottom">© 2026 Eyewear Shop. Ảnh sản phẩm minh họa lấy từ Wikimedia Commons, nguồn ghi trong tài liệu dự án.</div>
         </div>
       </footer>
     </>

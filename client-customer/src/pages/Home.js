@@ -24,9 +24,9 @@ export default function Home() {
 
   useEffect(() => {
     api.get('/banners').then((res) => setBanners(Array.isArray(res.data) ? res.data : [])).catch(() => setBanners([]));
-    api.get('/categories').then((res) => setCategories(res.data));
-    api.get('/products/new').then((res) => setNewProducts(res.data));
-    api.get('/products/hot').then((res) => setHotProducts(res.data));
+    api.get('/categories').then((res) => setCategories(Array.isArray(res.data) ? res.data : [])).catch(() => setCategories([]));
+    api.get('/products/new').then((res) => setNewProducts(Array.isArray(res.data) ? res.data : [])).catch(() => setNewProducts([]));
+    api.get('/products/hot').then((res) => setHotProducts(Array.isArray(res.data) ? res.data : [])).catch(() => setHotProducts([]));
   }, []);
 
   const featured = newProducts && newProducts[0];

@@ -115,8 +115,8 @@ button, input, select { font: inherit; color: inherit; border-radius: 0; }
 .hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
 .hero-art { position: relative; z-index: 1; }
 .hero-figure { margin: 0; }
-.hero-media { position: relative; aspect-ratio: 4 / 5; background: var(--surface); border: 1px solid var(--ink); display: grid; place-items: center; overflow: hidden; }
-.hero-media img { width: 100%; height: 100%; object-fit: contain; padding: 8%; transition: transform 0.8s var(--ease); }
+.hero-media { position: relative; aspect-ratio: 4 / 3; background: var(--surface); border: 1px solid var(--ink); display: grid; place-items: center; overflow: hidden; }
+.hero-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.8s var(--ease); }
 .hero-media:hover img { transform: scale(1.04); }
 .hero-media .glyph-bg { width: 78%; color: var(--ink); }
 .hero-caption { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0 0; font-size: 14px; }
@@ -147,14 +147,14 @@ button, input, select { font: inherit; color: inherit; border-radius: 0; }
 .index-row:hover svg { transform: translateX(-10px) rotate(-45deg); }
 
 /* ---------- Thẻ sản phẩm ---------- */
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 44px 24px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 44px 24px; }
 .grid.lead { grid-template-columns: 1.5fr 1fr 1fr; }
-.grid.lead > :first-child .card-media { aspect-ratio: 6 / 5; }
+.grid.lead > :first-child .card-media { aspect-ratio: 4 / 3; }
 @media (max-width: 860px) { .grid.lead { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); } }
 .card { display: block; }
-.card-media { position: relative; aspect-ratio: 4 / 5; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; transition: border-color 0.2s; }
+.card-media { position: relative; aspect-ratio: 4 / 3; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; transition: border-color 0.2s; }
 .card:hover .card-media { border-color: var(--ink); }
-.card-media img { width: 100%; height: 100%; object-fit: contain; padding: 12%; transition: transform 0.7s var(--ease); }
+.card-media img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.7s var(--ease); }
 .card:hover .card-media img { transform: scale(1.07); }
 .card-media .glyph-bg { width: 60%; color: var(--ink); opacity: 0.18; }
 .card-body { display: grid; gap: 2px; padding-top: 14px; }
@@ -172,7 +172,7 @@ button, input, select { font: inherit; color: inherit; border-radius: 0; }
 .row-card { display: grid; grid-template-columns: 200px 1fr auto; gap: 28px; align-items: center; padding: 20px 0; border-bottom: 1px solid var(--line); }
 .row-card:first-child { border-top: 1px solid var(--ink); }
 .row-card .thumb { aspect-ratio: 4 / 3; background: var(--surface); border: 1px solid var(--line); display: grid; place-items: center; overflow: hidden; }
-.row-card .thumb img { width: 100%; height: 100%; object-fit: contain; padding: 8%; }
+.row-card .thumb img { width: 100%; height: 100%; object-fit: cover; }
 .row-card .thumb .glyph-bg { width: 56%; color: var(--ink); opacity: 0.2; }
 .row-card h3 { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: clamp(1.6rem, 3vw, 2.4rem); line-height: 1.04; padding-top: 0.05em; }
 .row-card .card-brand { margin-bottom: 4px; }
@@ -195,8 +195,8 @@ button, input, select { font: inherit; color: inherit; border-radius: 0; }
 
 /* ---------- Chi tiết ---------- */
 .detail { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); gap: 64px; align-items: start; }
-.detail-media { position: sticky; top: calc(var(--header-h) + 24px); aspect-ratio: 1; background: var(--surface); border: 1px solid var(--ink); display: grid; place-items: center; overflow: hidden; }
-.detail-media img { width: 100%; height: 100%; object-fit: contain; padding: 8%; }
+.detail-media { position: sticky; top: calc(var(--header-h) + 24px); aspect-ratio: 4 / 3; background: var(--surface); border: 1px solid var(--ink); display: grid; place-items: center; overflow: hidden; }
+.detail-media img { width: 100%; height: 100%; object-fit: cover; }
 .detail-media .glyph-bg { width: 62%; color: var(--ink); }
 .detail-info .brandline { font-size: 13px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); }
 .detail-info h1 { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: clamp(2.8rem, 6vw, 5.2rem); line-height: 1.02; padding-top: 0.06em; margin-top: 10px; }
@@ -261,7 +261,7 @@ button, input, select { font: inherit; color: inherit; border-radius: 0; }
 .cart-lines { border-top: 1px solid var(--ink); }
 .cart-line { display: grid; grid-template-columns: 120px 1fr auto; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--line); align-items: start; }
 .cart-line .thumb { display: grid; place-items: center; aspect-ratio: 1; background: var(--surface); border: 1px solid var(--line); overflow: hidden; }
-.cart-line .thumb img { width: 100%; height: 100%; object-fit: contain; padding: 8%; }
+.cart-line .thumb img { width: 100%; height: 100%; object-fit: cover; }
 .cart-line .thumb .glyph-bg { width: 60%; color: var(--ink); opacity: 0.2; }
 .cart-line .name { display: block; font-weight: 600; font-size: 1.05rem; margin: 2px 0; }
 .cart-line .name:hover { color: var(--accent); }

@@ -26,12 +26,13 @@ export default function ProductList() {
     if (cid) {
       setTitle('Danh mục');
       api.get(`/products/category/${cid}`).then((res) => {
-        setProducts(res.data);
-        if (res.data.length > 0 && res.data[0].category) setTitle(res.data[0].category.name);
-      });
+        const list = Array.isArray(res.data) ? res.data : [];
+        setProducts(list);
+        if (list.length > 0 && list[0].category) setTitle(list[0].category.name);
+      }).catch(() => setProducts([]));
     } else if (keyword) {
       setTitle(`Kết quả cho "${keyword}"`);
-      api.get(`/products/search/${encodeURIComponent(keyword)}`).then((res) => setProducts(res.data));
+      api.get(`/products/search/${encodeURIComponent(keyword)}`).then((res) => setProducts(Array.isArray(res.data) ? res.data : [])).catch(() => setProducts([]));
     }
   }, [cid, keyword]);
 

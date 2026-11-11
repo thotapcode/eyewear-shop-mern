@@ -23,7 +23,7 @@ export default function Orders() {
 
   useEffect(() => {
     if (!customer) return;
-    api.get(`/orders/customer/${customer._id}`).then((res) => setOrders(Array.isArray(res.data) ? res.data : []));
+    api.get(`/orders/customer/${customer._id}`).then((res) => setOrders(Array.isArray(res.data) ? res.data : [])).catch(() => setOrders([]));
   }, [customer]);
 
   const load = () => api.get(`/orders/customer/${customer._id}`).then((res) => setOrders(Array.isArray(res.data) ? res.data : []));
