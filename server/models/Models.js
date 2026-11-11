@@ -21,8 +21,31 @@ const ProductSchema = mongoose.Schema({
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
 }, { versionKey: false });
 
+const CustomerSchema = mongoose.Schema({
+  username: String,
+  password: String,
+  name: String,
+  phone: String,
+  email: String,
+  active: Number, // 0: chưa kích hoạt, 1: đã kích hoạt
+  token: String, // mã kích hoạt gửi qua email
+}, { versionKey: false });
+
+const OrderSchema = mongoose.Schema({
+  cdate: Number,
+  total: Number,
+  status: String, // PENDING, APPROVED, CANCELED
+  customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
+  items: [{
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+    quantity: Number,
+  }],
+}, { versionKey: false });
+
 module.exports = {
   Admin: mongoose.model('Admin', AdminSchema),
   Category: mongoose.model('Category', CategorySchema),
   Product: mongoose.model('Product', ProductSchema),
+  Customer: mongoose.model('Customer', CustomerSchema),
+  Order: mongoose.model('Order', OrderSchema),
 };

@@ -16,6 +16,7 @@ app.get('/hello', (req, res) => {
   res.json({ message: 'Hello from server!' });
 });
 app.use('/api/admin', require('./api/admin'));
+app.use('/api/customer', require('./api/customer'));
 
 // tạo tài khoản admin mặc định nếu chưa có
 async function seedAdmin() {
