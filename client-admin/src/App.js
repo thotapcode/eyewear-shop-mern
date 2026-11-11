@@ -1,26 +1,29 @@
-import axios from 'axios';
-import React, { Component } from 'react';
+import React from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { AuthProvider, useAuth } from './AuthContext';
+import Layout from './components/Layout';
+import Login from './pages/Login';
+import './App.css';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { message: 'Loading...' };
-  }
-
-  render() {
-    return (
-      <div>
-        <h2>Admin page</h2>
-        <p>{this.state.message}</p>
-      </div>
-    );
-  }
-
-  componentDidMount() {
-    axios.get('/hello').then((res) => {
-      this.setState({ message: res.data.message });
-    });
-  }
+// chỉ cho vào khi đã đăng nhập
+function RequireAuth({ children }) {
+  const { token, checking } = useAuth();
+  if (checking) return <p className="content">Đang kiểm tra phiên đăng nhập...</p>;
+  return token ? children : <Navigate to="/login" replace />;
 }
 
-export default App;
+export default function App() {
+  return (
+    <AuthProvider>
+      <BrowserRouter basename="/admin">
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/" element={<RequireAuth><Layout /></RequireAuth>}>
+            <Route index element={<p>Chọn chức năng ở thanh menu.</p>} />
+          </Route>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}

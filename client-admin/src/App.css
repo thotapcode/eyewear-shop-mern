@@ -1,38 +1,29 @@
-.App {
-  text-align: center;
-}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f4f6f8; color: #222; }
+button { cursor: pointer; padding: 6px 12px; border: 0; border-radius: 4px; background: #1f6feb; color: #fff; }
+button.danger { background: #d1242f; }
+button.secondary { background: #6e7781; }
+input, select { padding: 6px 8px; border: 1px solid #c4c9ce; border-radius: 4px; width: 100%; }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
-}
+.topbar { display: flex; align-items: center; gap: 24px; padding: 10px 24px; background: #0b3d5c; color: #fff; }
+.topbar h1 { font-size: 18px; margin: 0; flex: 1; }
+.topbar nav { display: flex; gap: 16px; }
+.topbar a { color: #cfe3f1; text-decoration: none; padding: 4px 0; }
+.topbar a.active { color: #fff; border-bottom: 2px solid #fff; }
+.content { max-width: 1000px; margin: 24px auto; padding: 0 16px; }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
+.login { max-width: 340px; margin: 80px auto; padding: 24px; background: #fff; border-radius: 8px; display: grid; gap: 12px; box-shadow: 0 1px 4px rgba(0,0,0,.15); }
+.login h2 { margin: 0; text-align: center; }
+.login label { display: grid; gap: 4px; font-size: 14px; }
+.error { color: #d1242f; margin: 0; font-size: 14px; }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
-}
-
-.App-link {
-  color: #61dafb;
-}
-
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
-}
+table { width: 100%; border-collapse: collapse; background: #fff; }
+th, td { padding: 8px 10px; border-bottom: 1px solid #e1e4e8; text-align: left; vertical-align: middle; }
+th { background: #eef1f4; }
+.actions { display: flex; gap: 6px; }
+.form { display: grid; gap: 10px; background: #fff; padding: 16px; border-radius: 8px; margin-bottom: 20px; }
+.form .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.form label { display: grid; gap: 4px; font-size: 14px; }
+.thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 4px; }
+.pager { display: flex; gap: 6px; margin-top: 12px; }
+.pager button.current { background: #0b3d5c; }
