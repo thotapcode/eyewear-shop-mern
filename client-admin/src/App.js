@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider, useAuth } from './AuthContext';
 import Layout from './components/Layout';
 import Login from './pages/Login';
+import Categories from './pages/Categories';
 import './App.css';
 
 // chỉ cho vào khi đã đăng nhập
@@ -19,7 +20,8 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/" element={<RequireAuth><Layout /></RequireAuth>}>
-            <Route index element={<p>Chọn chức năng ở thanh menu.</p>} />
+            <Route index element={<Navigate to="/categories" replace />} />
+            <Route path="categories" element={<Categories />} />
           </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
