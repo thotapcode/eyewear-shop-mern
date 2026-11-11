@@ -5,7 +5,12 @@ const PasswordUtil = require('../utils/PasswordUtil');
 const MailUtil = require('../utils/MailUtil');
 const { Admin, Category, Product, Customer, Order } = require('../models/Models');
 
-const PAGE_SIZE = 4;
+const PAGE_SIZE = 8;
+
+// trả số lượng của đơn bị hủy về kho
+async function restoreStock(order) {
+  await Product.bulkWrite(order.items.map((i) => ({ updateOne: { filter: { _id: i.product }, update: { $inc: { stock: i.quantity } } } })));
+}
 
 // ---- login & logout ----
 router.post('/login', async (req, res) => {
@@ -29,23 +34,39 @@ router.get('/categories', JwtUtil.checkAdmin, async (req, res) => {
   res.json(await Category.find({}));
 });
 
+const cleanName = (v) => (typeof v === 'string' ? v.trim() : '');
+const bad = (res, message) => res.json({ success: false, message });
+
 router.post('/categories', JwtUtil.checkAdmin, async (req, res) => {
-  res.json(await Category.create({ name: req.body.name }));
+  const name = cleanName(req.body.name);
+  if (!name || name.length > 60) return bad(res, 'Tên danh mục phải từ 1 đến 60 ký tự');
+  res.json(await Category.create({ name }));
 });
 
 router.put('/categories/:id', JwtUtil.checkAdmin, async (req, res) => {
-  res.json(await Category.findByIdAndUpdate(req.params.id, { name: req.body.name }, { new: true }));
+  const name = cleanName(req.body.name);
+  if (!name || name.length > 60) return bad(res, 'Tên danh mục phải từ 1 đến 60 ký tự');
+  if (!isId(req.params.id)) return bad(res, 'Danh mục không tồn tại');
+  res.json(await Category.findByIdAndUpdate(req.params.id, { name }, { new: true }));
 });
 
+// không cho xóa danh mục còn sản phẩm để tránh sản phẩm mồ côi
 router.delete('/categories/:id', JwtUtil.checkAdmin, async (req, res) => {
+  if (!isId(req.params.id)) return bad(res, 'Danh mục không tồn tại');
+  const used = await Product.countDocuments({ category: req.params.id });
+  if (used > 0) return bad(res, `Danh mục còn ${used} sản phẩm, hãy chuyển hoặc xóa sản phẩm trước`);
   res.json(await Category.findByIdAndDelete(req.params.id));
 });
 
 // ---- products ----
+const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 router.get('/products', JwtUtil.checkAdmin, async (req, res) => {
   const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
-  const total = await Product.countDocuments({});
-  const products = await Product.find({})
+  const q = cleanName(req.query.q);
+  const filter = q ? { $or: [{ name: new RegExp(escapeRegex(q), 'i') }, { brand: new RegExp(escapeRegex(q), 'i') }] } : {};
+  const total = await Product.countDocuments(filter);
+  const products = await Product.find(filter)
     .sort({ cdate: -1 })
     .skip((page - 1) * PAGE_SIZE)
     .limit(PAGE_SIZE)
@@ -53,22 +74,39 @@ router.get('/products', JwtUtil.checkAdmin, async (req, res) => {
   res.json({ products, noPages: Math.ceil(total / PAGE_SIZE), curPage: page });
 });
 
+// kiểm tra và làm sạch dữ liệu sản phẩm, trả về { error } hoặc { data }
+async function readProduct(body) {
+  const name = cleanName(body.name);
+  if (!name || name.length > 120) return { error: 'Tên sản phẩm phải từ 1 đến 120 ký tự' };
+  const price = Number(body.price);
+  if (body.price === '' || body.price === null || !Number.isFinite(price) || price < 0 || price > 10000000) return { error: 'Giá phải là số từ 0 đến 10.000.000' };
+  const stock = body.stock === undefined || body.stock === '' ? 0 : Number(body.stock);
+  if (!Number.isInteger(stock) || stock < 0 || stock > 100000) return { error: 'Tồn kho phải là số nguyên từ 0 đến 100.000' };
+  if (!isId(body.category) || !(await Category.exists({ _id: body.category }))) return { error: 'Vui lòng chọn danh mục hợp lệ' };
+  const text = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
+  const image = typeof body.image === 'string' ? body.image : '';
+  if (image.length > 2500000) return { error: 'Ảnh quá lớn, vui lòng chọn ảnh dưới 1,5 MB' };
+  return {
+    data: {
+      name, price, stock, category: body.category, image,
+      brand: text(body.brand, 60), frameType: text(body.frameType, 60), material: text(body.material, 60),
+      description: text(body.description, 2000),
+    },
+  };
+}
+
 router.post('/products', JwtUtil.checkAdmin, async (req, res) => {
-  const { name, price, category, image, brand, frameType, material } = req.body;
-  const product = await Product.create({
-    name, price, category, image, brand, frameType, material, cdate: Date.now(),
-  });
-  res.json(product);
+  const { error, data } = await readProduct(req.body);
+  if (error) return bad(res, error);
+  res.json(await Product.create({ ...data, cdate: Date.now() }));
 });
 
 router.put('/products/:id', JwtUtil.checkAdmin, async (req, res) => {
-  const { name, price, category, image, brand, frameType, material } = req.body;
-  const product = await Product.findByIdAndUpdate(
-    req.params.id,
-    { name, price, category, image, brand, frameType, material },
-    { new: true }
-  );
-  res.json(product);
+  if (!isId(req.params.id)) return bad(res, 'Sản phẩm không tồn tại');
+  const { error, data } = await readProduct(req.body);
+  if (error) return bad(res, error);
+  const product = await Product.findByIdAndUpdate(req.params.id, data, { new: true });
+  res.json(product || { success: false, message: 'Sản phẩm không tồn tại' });
 });
 
 router.delete('/products/:id', JwtUtil.checkAdmin, async (req, res) => {
@@ -95,6 +133,7 @@ router.put('/orders/status/:id', JwtUtil.checkAdmin, async (req, res) => {
   if (!isId(req.params.id)) return res.json({ success: false, message: 'Đơn hàng không tồn tại' });
   const order = await Order.findOneAndUpdate({ _id: req.params.id, status: 'PENDING' }, { status }, { new: true });
   if (!order) return res.json({ success: false, message: 'Đơn hàng không tồn tại hoặc đã được xử lý' });
+  if (status === 'CANCELED') await restoreStock(order); // hủy đơn thì trả hàng về kho
   res.json({ success: true, order });
 });
 
@@ -130,6 +169,21 @@ router.get('/customers/sendmail/:id', JwtUtil.checkAdmin, async (req, res) => {
     console.error('Gửi mail thất bại:', err.message);
     res.json({ success: false, message: 'Gửi email thất bại' });
   }
+});
+
+// ---- thống kê cho trang tổng quan ----
+router.get('/stats', JwtUtil.checkAdmin, async (req, res) => {
+  const [revenueAgg, byStatus, customers, products, lowStock, recent] = await Promise.all([
+    Order.aggregate([{ $match: { status: 'APPROVED' } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
+    Order.aggregate([{ $group: { _id: '$status', n: { $sum: 1 } } }]),
+    Customer.countDocuments({}),
+    Product.countDocuments({}),
+    Product.find({ stock: { $lte: 5 } }, 'name brand stock').sort({ stock: 1 }).limit(6),
+    Order.find({}).sort({ cdate: -1 }).limit(5).populate('customer', 'name username'),
+  ]);
+  const orders = { PENDING: 0, APPROVED: 0, CANCELED: 0 };
+  byStatus.forEach((b) => { orders[b._id] = b.n; });
+  res.json({ revenue: revenueAgg[0] ? revenueAgg[0].total : 0, orders, customers, products, lowStock, recent });
 });
 
 module.exports = router;

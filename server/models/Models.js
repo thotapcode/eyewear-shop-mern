@@ -17,6 +17,8 @@ const ProductSchema = mongoose.Schema({
   brand: String,
   frameType: String,
   material: String,
+  description: String,
+  stock: Number, // số lượng còn trong kho
   cdate: Number,
   category: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
 }, { versionKey: false });
@@ -27,6 +29,7 @@ const CustomerSchema = mongoose.Schema({
   name: String,
   phone: String,
   email: String,
+  address: String,
   active: Number, // 0: chưa kích hoạt, 1: đang hoạt động, 2: bị admin khóa
   token: String, // mã kích hoạt gửi qua email
 }, { versionKey: false });
@@ -35,6 +38,8 @@ const OrderSchema = mongoose.Schema({
   cdate: Number,
   total: Number,
   status: String, // PENDING, APPROVED, CANCELED
+  payment: String, // COD: thanh toán khi nhận hàng
+  shipping: { name: String, phone: String, address: String, note: String },
   customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
   // name và price là bản chụp lúc đặt hàng, để đơn cũ không đổi khi sản phẩm bị sửa hoặc xóa
   items: [{

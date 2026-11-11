@@ -3,7 +3,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const MyConstants = require('./utils/MyConstants');
 const PasswordUtil = require('./utils/PasswordUtil');
-const { Admin } = require('./models/Models');
+const { Admin, Product } = require('./models/Models');
 
 const app = express();
 
@@ -28,7 +28,11 @@ async function seedAdmin() {
     console.log(`Created default admin "${MyConstants.ADMIN_USERNAME}"`);
   }
 }
-require('mongoose').connection.once('open', seedAdmin);
+// sản phẩm tạo trước khi có tính năng tồn kho được gán 10 cái để không bị coi là hết hàng
+async function migrateStock() {
+  await Product.updateMany({ stock: { $exists: false } }, { $set: { stock: 10, description: '' } });
+}
+require('mongoose').connection.once('open', () => { seedAdmin(); migrateStock(); });
 
 app.listen(MyConstants.PORT, () => {
   console.log(`Server listening on ${MyConstants.PORT}`);
