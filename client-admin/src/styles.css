@@ -247,3 +247,8 @@ textarea.input { font: inherit; line-height: 1.5; }
 .search-bar input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
 .search-bar svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); pointer-events: none; }
 .ship-line { display: block; margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--line); font-size: 13px; }
+
+/* ---------- Banner ---------- */
+.thumb.wide { width: 128px; height: 48px; padding: 0; object-fit: cover; }
+.check { display: inline-flex; align-items: center; gap: 10px; font-size: 14px; cursor: pointer; }
+.check input { width: 18px; height: 18px; accent-color: var(--accent); }
