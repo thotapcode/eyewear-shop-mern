@@ -61,13 +61,12 @@ async function seed(db) {
   }
 
   // sản phẩm: ngày tạo rải đều 40 ngày gần đây để mục "sản phẩm mới" có thứ tự
-  // kính mới nhất ở cuối danh sách, phụ kiện được coi là hàng cũ hơn để mục "sản phẩm mới" hiện kính
+  // sản phẩm đầu danh sách là mới nhất, phụ kiện được coi là hàng cũ hơn để mục "sản phẩm mới" hiện kính
   const now = Date.now();
-  const nGlasses = data.products.filter((p) => p.category !== 'Phụ kiện').length;
   let accRank = 0;
   const list = data.products.map((p, i) => {
     const isAcc = p.category === 'Phụ kiện';
-    const ageDays = isAcc ? 45 + accRank++ * 2 : (nGlasses - i) * 1.3;
+    const ageDays = isAcc ? 45 + accRank++ * 2 : (i + 1) * 1.3;
     return { ...p, category: catId[p.category], cdate: Math.round(now - ageDays * DAY), demo: true };
   });
 
@@ -81,7 +80,7 @@ async function seed(db) {
   const buyers = customers.map((c, i) => ({ ...c, _id: cRes.insertedIds[i] })).filter((c) => c.active === 1);
 
   // đơn hàng: một số sản phẩm bán chạy hơn hẳn để mục "bán chạy" có ý nghĩa
-  const weights = list.map((p, i) => (['Solis Aviator', 'Aster Round 01', 'Lumi Office 01', 'Kobe Classic', 'Khăn lau microfiber'].includes(p.name) ? 6 : 1 + (i % 3)));
+  const weights = list.map((p, i) => (['Ray-Ban Original Wayfarer RB2140', 'Ray-Ban Aviator Shooter RB3139', 'Ray-Ban Clubmaster RB3016 Tròng gương', 'Kính lọc ánh sáng xanh gọng đen', 'Hộp kính màu đen'].includes(p.name) ? 6 : 1 + (i % 3)));
   const totalW = weights.reduce((a, b) => a + b, 0);
   const pickProduct = () => {
     let r = rand() * totalW;
