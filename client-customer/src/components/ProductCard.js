@@ -36,12 +36,27 @@ export function SkeletonGrid({ count = 4 }) {
   );
 }
 
-// products là null khi đang tải dữ liệu
-export function ProductGrid({ products, empty }) {
+// hàng ngang cho mục bán chạy
+export function RowCard({ product }) {
+  const src = imageSrc(product);
+  return (
+    <Link to={`/product/${product._id}`} className="row-card">
+      <div className="thumb">{src ? <img src={src} alt={product.name} loading="lazy" /> : <GlassesMark className="glyph-bg" />}</div>
+      <div>
+        {product.brand && <p className="card-brand">{product.brand}</p>}
+        <h3>{product.name}</h3>
+      </div>
+      <p className="price mono">{formatPrice(product.price)}</p>
+    </Link>
+  );
+}
+
+// products là null khi đang tải dữ liệu; lead: ô đầu rộng hơn (dùng khi có đúng 3 sản phẩm)
+export function ProductGrid({ products, empty, lead }) {
   if (products === null) return <SkeletonGrid />;
   if (products.length === 0) return empty || null;
   return (
-    <div className="grid">
+    <div className={`grid${lead ? ' lead' : ''}`}>
       {products.map((p, i) => (
         <Reveal key={p._id} delay={Math.min(i, 5) * 0.05}>
           <ProductCard product={p} />

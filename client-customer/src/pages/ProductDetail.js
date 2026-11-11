@@ -58,10 +58,10 @@ export default function ProductDetail() {
       </nav>
       <div className="detail">
         <div className="detail-media">
-          {src ? <img src={src} alt={product.name} /> : <GlassesMark className="glyph-bg" />}
+          {src ? <img src={src} alt={product.name} /> : <GlassesMark className="glyph-bg" strokeWidth={6} />}
         </div>
         <div className="detail-info">
-          {product.brand && <p className="muted">{product.brand}</p>}
+          {product.brand && <p className="brandline">{product.brand}</p>}
           <h1>{product.name}</h1>
           <p className="detail-price mono">{formatPrice(product.price)}</p>
           {specs.length > 0 && (

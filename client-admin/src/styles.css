@@ -4,44 +4,44 @@
    nút và ô nhập bo 10px, thẻ và bảng bo 14px. Mật độ thông tin cao hơn trang khách.
    ------------------------------------------------------------ */
 :root {
-  --bg: #f3f4f6;
+  --bg: #f4f4f4;
   --surface: #ffffff;
-  --surface-2: #e9ecef;
-  --ink: #0f1316;
-  --ink-2: #4a545e;
-  --line: #d8dde2;
-  --accent: #c2410c;
-  --accent-hover: #9f3409;
+  --surface-2: #ececec;
+  --ink: #0b0b0c;
+  --ink-2: #55585c;
+  --line: #d9d9db;
+  --accent: #d92b26;
+  --accent-hover: #b3201c;
   --on-accent: #ffffff;
-  --accent-soft: #fbe6dc;
+  --accent-soft: #fbe4e3;
   --danger: #b42318;
   --danger-soft: #fde8e6;
   --ok: #17663a;
-  --shadow: 0 1px 2px rgb(15 19 22 / 0.06), 0 8px 24px rgb(15 19 22 / 0.07);
-  --shadow-lift: 0 4px 8px rgb(15 19 22 / 0.1), 0 24px 56px rgb(15 19 22 / 0.2);
-  --r-ctl: 10px;
-  --r-card: 14px;
+  --shadow: none;
+  --shadow-lift: 0 24px 60px rgb(0 0 0 / 0.28);
+  --r-ctl: 0;
+  --r-card: 0;
   --side-w: 244px;
+  --display: 'Barlow Condensed', 'Arial Narrow', sans-serif;
   --ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0c0f11;
-    --surface: #14181b;
-    --surface-2: #1d2327;
-    --ink: #eceff1;
-    --ink-2: #a3adb5;
-    --line: #283036;
-    --accent: #f0763a;
-    --accent-hover: #f58c57;
-    --on-accent: #1a0b03;
-    --accent-soft: #2b1a11;
+    --bg: #0b0b0c;
+    --surface: #151516;
+    --surface-2: #1e1e20;
+    --ink: #f4f4f4;
+    --ink-2: #a4a6aa;
+    --line: #2a2a2c;
+    --accent: #ff4a43;
+    --accent-hover: #ff6b65;
+    --on-accent: #0b0b0c;
+    --accent-soft: #2e1412;
     --danger: #ff8a7a;
     --danger-soft: #3a1a17;
     --ok: #6fd69a;
-    --shadow: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px rgb(0 0 0 / 0.35);
-    --shadow-lift: 0 4px 8px rgb(0 0 0 / 0.5), 0 24px 56px rgb(0 0 0 / 0.6);
+    --shadow-lift: 0 24px 60px rgb(0 0 0 / 0.7);
   }
 }
 
@@ -179,3 +179,33 @@ select.input { cursor: pointer; }
 .toast svg { flex: none; color: #4ade80; }
 .toast.error svg { color: #ff8a7a; }
 @media (max-width: 520px) { .toasts { left: 16px; right: 16px; bottom: 16px; } .toast { max-width: none; } }
+
+/* ---------- Đồng bộ phong cách đen trắng với trang khách ---------- */
+button, input, select { border-radius: 0; }
+.btn { text-transform: uppercase; letter-spacing: 0.08em; font-size: 12px; border-color: transparent; }
+.btn-primary { background: var(--ink); color: var(--bg); }
+.btn-primary:hover { background: var(--accent); color: var(--on-accent); }
+.btn-ghost { border-color: var(--ink); }
+.btn-ghost:hover { background: var(--ink); color: var(--bg); }
+.page-head h1, .login-card h1 { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: 2.8rem; line-height: 1.02; padding-top: 0.06em; letter-spacing: 0.005em; }
+.login-card h1 { font-size: 3rem; }
+.login-side h2 { font-family: var(--display); font-weight: 800; text-transform: uppercase; font-size: clamp(2.6rem, 5vw, 4.4rem); line-height: 1.02; max-width: 12ch; padding-top: 0.06em; }
+.login-side .glyph-bg { color: var(--accent); opacity: 1; }
+.side { background: var(--ink); color: var(--bg); border-right: 0; }
+.side .brand { font-family: var(--display); font-weight: 800; font-size: 22px; letter-spacing: 0.05em; text-transform: uppercase; }
+.side .brand svg { color: var(--bg); }
+.side .brand small { font-family: 'Be Vietnam Pro', sans-serif; font-weight: 500; text-transform: none; letter-spacing: 0; color: color-mix(in srgb, var(--bg) 65%, transparent); }
+.side nav a, .side .foot button { color: color-mix(in srgb, var(--bg) 75%, transparent); font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; font-weight: 600; }
+.side nav a:hover, .side .foot button:hover { background: color-mix(in srgb, var(--bg) 12%, transparent); color: var(--bg); }
+.side nav a.active { background: var(--accent); color: var(--on-accent); }
+th { background: var(--ink); color: var(--bg); text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; }
+.card, .table-card { border-color: var(--ink); }
+.pager-nums button[aria-current='page'] { background: var(--ink); color: var(--bg); }
+.thumb { background: var(--surface); border: 1px solid var(--line); }
+.drop:hover, .drop:focus-within { background: var(--accent-soft); }
+.toast { background: var(--ink); color: var(--bg); }
+.form-card h2 { font-family: var(--display); font-weight: 700; text-transform: uppercase; font-size: 1.5rem; padding-top: 0.05em; }
+.field label { text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; }
+.input { border-color: var(--ink); }
+.input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
+@media (max-width: 860px) { .side { padding: 10px 14px; } }

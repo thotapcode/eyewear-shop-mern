@@ -35,8 +35,8 @@ export default function Layout() {
       <header className="site-header">
         <div className="wrap header-row">
           <Link to="/" className="brand" aria-label="Eyewear Shop, về trang chủ">
-            <GlassesMark size={34} strokeWidth={6} />
-            <span>Eyewear Shop</span>
+            <GlassesMark size={44} strokeWidth={7} />
+            <span>Eyewear</span>
           </Link>
           <nav className="nav" aria-label="Danh mục sản phẩm">
             {categories.map((c) => (
@@ -61,8 +61,8 @@ export default function Layout() {
               </>
             ) : (
               <>
-                <Link to="/login" className="btn btn-ghost">Đăng nhập</Link>
-                <Link to="/signup" className="btn btn-primary hide-sm">Đăng ký</Link>
+                <Link to="/login" className="link">Đăng nhập</Link>
+                <Link to="/signup" className="btn hide-sm" style={{ height: 42, padding: '0 20px' }}>Đăng ký</Link>
               </>
             )}
           </div>
@@ -80,9 +80,9 @@ export default function Layout() {
 
       <footer className="site-footer">
         <div className="wrap">
+          <div className="footer-mark" aria-hidden="true">Eyewear</div>
           <div className="footer-grid">
             <div>
-              <Link to="/" className="brand"><GlassesMark size={30} strokeWidth={6} /><span>Eyewear Shop</span></Link>
               <p>Gọng cận, kính râm và phụ kiện. Chọn theo danh mục hoặc tìm theo thương hiệu.</p>
             </div>
             <div className="footer-links">
