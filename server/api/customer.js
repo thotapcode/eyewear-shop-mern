@@ -6,6 +6,8 @@ const PasswordUtil = require('../utils/PasswordUtil');
 const MailUtil = require('../utils/MailUtil');
 const { Customer, Category, Product, Order, Banner } = require('../models/Models');
 
+const PHONE = /^[0-9+\s.-]{9,15}$/;
+const text = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 const escapeRegex = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const isId = (id) => /^[0-9a-fA-F]{24}$/.test(String(id));
 // không bao giờ trả mật khẩu và mã kích hoạt về client
@@ -55,10 +57,21 @@ router.get('/products/:id', async (req, res) => {
 
 // ---- tài khoản ----
 router.post('/signup', async (req, res) => {
-  const { username, password, name, phone, email } = req.body;
+  const b = req.body || {};
+  const username = text(b.username, 40);
+  const name = text(b.name, 80);
+  const email = text(b.email, 120);
+  const phone = text(b.phone, 20);
+  const password = typeof b.password === 'string' ? b.password : '';
   if (!username || !password || !name || !email) {
     return res.json({ success: false, message: 'Vui lòng nhập đủ tên đăng nhập, mật khẩu, họ tên và email' });
   }
+  if (!/^[a-zA-Z0-9._-]{3,30}$/.test(username)) {
+    return res.json({ success: false, message: 'Tên đăng nhập gồm 3 đến 30 ký tự chữ, số, dấu chấm, gạch ngang hoặc gạch dưới' });
+  }
+  if (password.length < 6 || password.length > 100) return res.json({ success: false, message: 'Mật khẩu cần từ 6 đến 100 ký tự' });
+  if (!/^\S+@\S+\.\S+$/.test(email)) return res.json({ success: false, message: 'Email chưa đúng định dạng' });
+  if (phone && !PHONE.test(phone)) return res.json({ success: false, message: 'Số điện thoại chưa hợp lệ' });
   if (await Customer.findOne({ username })) {
     return res.json({ success: false, message: 'Tên đăng nhập đã tồn tại' });
   }
@@ -85,8 +98,8 @@ router.post('/active', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-  const { username, password } = req.body;
-  if (!username || !password) return res.json({ success: false, message: 'Vui lòng nhập tên đăng nhập và mật khẩu' });
+  const { username, password } = req.body || {};
+  if (typeof username !== 'string' || typeof password !== 'string' || !username || !password) return res.json({ success: false, message: 'Vui lòng nhập tên đăng nhập và mật khẩu' });
   const customer = await Customer.findOne({ username });
   if (!customer || !PasswordUtil.verify(password, customer.password)) {
     return res.json({ success: false, message: 'Sai tên đăng nhập hoặc mật khẩu' });
@@ -115,19 +128,18 @@ async function requireActive(req, res, next) {
 router.put('/customers/:id', JwtUtil.checkCustomer, requireActive, async (req, res) => {
   if (String(req.decoded.id) !== req.params.id) return res.json({ success: false, message: 'Không có quyền sửa hồ sơ này' });
   const { name, phone, email, address, password } = req.body;
-  const text = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
   if (!text(name, 80) || !/^\S+@\S+\.\S+$/.test(text(email, 120))) return res.json({ success: false, message: 'Họ tên và email không hợp lệ' });
   const update = { name: text(name, 80), phone: text(phone, 20), email: text(email, 120), address: text(address, 200) };
-  if (password) update.password = PasswordUtil.hash(password);
+  if (password) {
+    if (typeof password !== 'string' || password.length < 6 || password.length > 100) return res.json({ success: false, message: 'Mật khẩu mới cần từ 6 đến 100 ký tự' });
+    update.password = PasswordUtil.hash(password);
+  }
   const customer = await Customer.findByIdAndUpdate(req.params.id, update, { new: true });
   res.json({ success: true, customer: publicCustomer(customer) });
 });
 
 // ---- đặt hàng ----
 const MAX_QTY = 20;
-
-const PHONE = /^[0-9+\s.-]{9,15}$/;
-const text = (v, max) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
 
 // giá và tên luôn lấy từ cơ sở dữ liệu, không tin dữ liệu giá do client gửi lên
 router.post('/checkout', JwtUtil.checkCustomer, requireActive, async (req, res) => {

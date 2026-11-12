@@ -15,7 +15,7 @@ async function restoreStock(order) {
 // ---- login & logout ----
 router.post('/login', async (req, res) => {
   const { username, password } = req.body;
-  if (!username || !password) return res.json({ success: false, message: 'Please input username and password' });
+  if (typeof username !== 'string' || typeof password !== 'string' || !username || !password) return res.json({ success: false, message: 'Please input username and password' });
   const admin = await Admin.findOne({ username });
   if (!admin || !PasswordUtil.verify(password, admin.password)) {
     return res.json({ success: false, message: 'Incorrect username or password' });
