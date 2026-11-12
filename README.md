@@ -1,37 +1,83 @@
+<div align="center">
+
 # Eyewear Shop
 
-Website bán kính mắt xây dựng bằng MERN (MongoDB, Express, React, Node.js) cho môn Lập trình web nâng cao. Gồm trang bán hàng cho khách và trang quản trị riêng, dùng chung một máy chủ API.
+Website bán kính mắt full-stack xây dựng bằng MERN, gồm trang bán hàng cho khách và trang quản trị riêng.
+
+![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?logo=nodedotjs&logoColor=white)
+![Express](https://img.shields.io/badge/Express-5-000000?logo=express&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)
+![Tests](https://img.shields.io/badge/tests-26%20passing-brightgreen)
+
+</div>
+
+Đồ án môn Lập trình web nâng cao (71ITSE41403), Trường Đại học Văn Lang. Dữ liệu mẫu gồm 30 sản phẩm của các thương hiệu thật, dùng ảnh có giấy phép mở, giá bằng VND.
+
+## Tính năng
+
+**Khách hàng**
+
+- Trang chủ có banner tự chuyển, danh mục, sản phẩm mới và bán chạy
+- Tìm kiếm, lọc theo thương hiệu, sắp xếp theo giá
+- Chi tiết sản phẩm kèm mô tả và tồn kho theo thời gian thực
+- Đăng ký, kích hoạt tài khoản qua email, đăng nhập, sửa hồ sơ và địa chỉ
+- Giỏ hàng lưu trên trình duyệt, đặt hàng thanh toán khi nhận hàng
+- Xem lịch sử đơn, tự hủy đơn đang chờ (hàng được hoàn lại kho)
+- Giao diện đen trắng phong cách thời trang, tự chuyển sáng tối theo hệ thống, dùng tốt trên điện thoại
+
+**Quản trị**
+
+- Tổng quan doanh thu, số đơn theo trạng thái, sản phẩm sắp hết hàng
+- Quản lý danh mục, sản phẩm (ảnh, giá, tồn kho, mô tả), banner trang chủ
+- Duyệt hoặc hủy đơn, xem địa chỉ giao hàng
+- Xem, khóa, mở khóa khách hàng và gửi lại email kích hoạt
+
+## Công nghệ
+
+| Lớp | Sử dụng |
+|---|---|
+| Giao diện | React 19, React Router 7, Axios, Motion, Phosphor Icons |
+| Máy chủ | Node.js, Express 5, Mongoose 9 |
+| Cơ sở dữ liệu | MongoDB Atlas |
+| Xác thực | JWT theo vai trò admin và khách, mật khẩu băm scrypt |
+| Bảo mật | helmet, giới hạn tần suất đăng nhập, kiểm tra dữ liệu vào, chống NoSQL injection |
+| Email | Nodemailer (không cấu hình thì in liên kết kích hoạt ra console) |
 
 ## Cấu trúc
 
-| Thư mục | Nội dung | Cổng khi phát triển |
-|---|---|---|
-| `server` | API Express, Mongoose, JWT, dữ liệu mẫu, kiểm thử | 3000 |
-| `client-admin` | Trang quản trị (React), chạy dưới đường dẫn `/admin` | 3001 |
-| `client-customer` | Trang khách hàng (React) | 3002 |
-| `docs` | Tài liệu kế hoạch, bàn giao và nguồn ảnh mẫu | |
-
-## Chức năng
-
-Khách hàng: xem banner, danh mục, sản phẩm mới và bán chạy; tìm kiếm, lọc theo thương hiệu, sắp xếp; xem chi tiết và tồn kho; đăng ký kèm kích hoạt qua email, đăng nhập, sửa hồ sơ; giỏ hàng lưu trên trình duyệt; đặt hàng thanh toán khi nhận hàng; xem và hủy đơn.
-
-Quản trị: tổng quan doanh thu và đơn hàng; quản lý danh mục, sản phẩm (ảnh, giá VND, tồn kho, mô tả), banner; duyệt hoặc hủy đơn; xem, khóa, mở khóa khách hàng và gửi lại email kích hoạt.
-
-## Cài đặt
-
-Yêu cầu Node.js 20 trở lên và một cơ sở dữ liệu MongoDB Atlas.
-
-```bash
-cd server && npm install
-cd ../client-admin && npm install
-cd ../client-customer && npm install
+```
+eyewear-shop-mern
+├── server            API Express, models, seed, test        (cổng 3000)
+├── client-admin      Trang quản trị, chạy ở /admin          (cổng 3001)
+├── client-customer   Trang khách hàng                       (cổng 3002)
+└── docs              Tài liệu bàn giao, nguồn ảnh mẫu
 ```
 
-Tạo file `server/.env` từ `server/.env.example` rồi điền `MONGODB_URI`, `JWT_SECRET`, `ADMIN_PASSWORD`. Không đưa file `.env` lên Git. Trong Atlas cần thêm địa chỉ IP của máy vào Network Access.
+## Bắt đầu nhanh
 
-## Chạy khi phát triển
+Yêu cầu Node.js 20 trở lên và một database MongoDB Atlas (gói miễn phí là đủ).
 
-Mở ba cửa sổ terminal:
+```bash
+git clone https://github.com/thotapcode/eyewear-shop-mern.git
+cd eyewear-shop-mern
+
+cd server && npm install && cd ..
+cd client-admin && npm install && cd ..
+cd client-customer && npm install && cd ..
+```
+
+Tạo `server/.env` từ `server/.env.example`:
+
+| Biến | Ý nghĩa |
+|---|---|
+| `MONGODB_URI` | Chuỗi kết nối Atlas (cần thêm IP máy vào Network Access) |
+| `JWT_SECRET` | Chuỗi ngẫu nhiên dài để ký token |
+| `ADMIN_USERNAME`, `ADMIN_PASSWORD` | Tài khoản admin, được tạo ở lần chạy đầu khi chưa có admin |
+| `EMAIL_USER`, `EMAIL_PASS` | Gmail và App Password để gửi email kích hoạt (có thể để trống) |
+| `CLIENT_URL` | Địa chỉ công khai của trang khách, dùng cho liên kết kích hoạt |
+
+Chạy ba tiến trình ở ba cửa sổ:
 
 ```bash
 cd server && npm run dev
@@ -39,42 +85,56 @@ cd client-admin && npm start
 cd client-customer && npm start
 ```
 
-Trang khách tại http://localhost:3002, trang quản trị tại http://localhost:3001/admin. Hai trang web chuyển các yêu cầu `/api` sang máy chủ ở cổng 3000. Lần chạy đầu tiên máy chủ tự tạo tài khoản admin theo `ADMIN_USERNAME` và `ADMIN_PASSWORD`.
-
-Nếu chưa cấu hình email, liên kết kích hoạt tài khoản khách được in ra cửa sổ của máy chủ.
+- Trang khách: http://localhost:3002
+- Trang quản trị: http://localhost:3001/admin
 
 ## Dữ liệu mẫu
 
 ```bash
 cd server
-npm run seed          # thêm danh mục, 30 sản phẩm có ảnh thật, banner, khách và đơn hàng mẫu
-npm run seed:reset    # xóa dữ liệu mẫu cũ rồi thêm lại
+npm run seed          # nạp danh mục, 30 sản phẩm, 3 banner, khách và đơn hàng mẫu
+npm run seed:reset    # xóa dữ liệu mẫu rồi nạp lại
 npm run seed:clean    # chỉ xóa dữ liệu mẫu
 ```
 
-Dữ liệu mẫu được đánh dấu riêng nên không đụng đến dữ liệu thật. Tài khoản khách mẫu dùng mật khẩu `Demo12345`, danh sách tên đăng nhập được in ra sau khi chạy. Nguồn và giấy phép của từng ảnh nằm ở `docs/ANH_NGUON.md`.
+Dữ liệu mẫu được đánh dấu riêng nên không ảnh hưởng dữ liệu thật. Khách mẫu có mật khẩu `Demo12345`, ví dụ `minhanh`, `quocbao`, `hongnhung`. Tài khoản `vankhoa` chưa kích hoạt và `maiphuong` đang bị khóa để thử các trạng thái này. Nguồn và giấy phép từng ảnh nằm ở [docs/ANH_NGUON.md](docs/ANH_NGUON.md).
 
 ## Kiểm thử
 
-Chạy máy chủ (`npm run dev`) rồi mở cửa sổ khác:
+Bật server rồi chạy:
 
 ```bash
 cd server && npm test
 ```
 
-Bộ kiểm thử gọi API thật gồm đăng nhập và phân quyền, chống NoSQL injection, kiểm tra dữ liệu vào, đặt hàng, trừ và hoàn kho, hủy đơn, khóa tài khoản, banner. Dữ liệu tạo ra có tiền tố `AUTOTEST` và được xóa sạch sau khi chạy. Có thể trỏ sang máy chủ khác bằng biến `TEST_API`.
+26 ca kiểm thử gọi API thật: phân quyền, chống NoSQL injection, kiểm tra dữ liệu vào, đặt hàng, trừ và hoàn kho, hủy đơn, khóa tài khoản, banner. Dữ liệu test có tiền tố `AUTOTEST` và được dọn sạch sau khi chạy.
 
 ## Triển khai
 
-Máy chủ có thể phục vụ luôn hai trang web đã build, nên chỉ cần một dịch vụ Node duy nhất (ví dụ Render):
+Server phục vụ luôn hai bản build nên chỉ cần một dịch vụ Node (ví dụ Render):
 
 ```bash
-cd server && npm run build:clients   # build client-admin và client-customer
-cd server && npm run start:prod      # NODE_ENV=production
+cd server
+npm run build:clients
+npm run start:prod
 ```
 
-Ở chế độ production, trang khách nằm ở `/`, trang quản trị ở `/admin`, API ở `/api`. Biến môi trường cần đặt trên hosting: `MONGODB_URI`, `JWT_SECRET`, `ADMIN_PASSWORD` (hai biến sau bắt buộc, thiếu thì máy chủ không khởi động), `CLIENT_URL` là địa chỉ công khai của trang, `NODE_ENV=production`. Trên Atlas, mở Network Access cho địa chỉ của hosting (hoặc `0.0.0.0/0` nếu hosting không có IP cố định).
+Đặt biến môi trường trên hosting: `MONGODB_URI`, `JWT_SECRET`, `ADMIN_PASSWORD`, `CLIENT_URL`, `NODE_ENV=production`. Thiếu `JWT_SECRET` hoặc `ADMIN_PASSWORD` thì server từ chối khởi động. Trang khách ở `/`, trang quản trị ở `/admin`, API ở `/api`. Trên Atlas cần mở Network Access cho hosting.
 
-## Bảo mật đã áp dụng
+## API
 
-Mật khẩu băm bằng scrypt có salt, token JWT theo vai trò admin hoặc khách, kiểm tra dữ liệu vào ở máy chủ, giá và tồn kho tính lại ở máy chủ khi đặt hàng, chặn NoSQL injection ở các trường đăng nhập, giới hạn số lần đăng nhập và đăng ký theo IP, header bảo vệ của helmet, giới hạn kích thước dữ liệu gửi lên.
+| Nhóm | Đường dẫn | Ví dụ |
+|---|---|---|
+| Admin | `/api/admin/*` | `login`, `categories`, `products`, `banners`, `orders`, `customers`, `stats` |
+| Khách | `/api/customer/*` | `signup`, `active`, `login`, `products/*`, `checkout`, `orders/customer/:id` |
+
+Mô tả đầy đủ từng endpoint nằm trong [docs/HuongDan_BanGiao.pdf](docs/HuongDan_BanGiao.pdf).
+
+## Tài liệu
+
+- [Hướng dẫn và bàn giao](docs/HuongDan_BanGiao.pdf): cài đặt, luồng thao tác, API, tiến độ
+- [Nguồn ảnh](docs/ANH_NGUON.md): tác giả và giấy phép ảnh sản phẩm
+
+## Tác giả
+
+Phan Nguyễn Ngọc Thọ, Khoa Công nghệ thông tin, Trường Đại học Văn Lang. Giảng viên hướng dẫn: ThS. Đặng Đình Hòa.
