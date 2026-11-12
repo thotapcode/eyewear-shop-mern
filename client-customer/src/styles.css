@@ -90,14 +90,18 @@ button, input, select { font: inherit; color: inherit; border-radius: 0; }
 .user-chip { display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 8px; font-weight: 600; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase; }
 .user-chip:hover { color: var(--accent); }
 .avatar { display: grid; place-items: center; width: 30px; height: 30px; background: var(--ink); color: var(--bg); font-weight: 700; font-size: 13px; }
-@media (max-width: 960px) {
+@media (max-width: 1500px) {
+  .user-chip span.name { display: none; }
+  .search { width: 170px; }
+}
+@media (max-width: 1180px) {
   .header-row { flex-wrap: wrap; gap: 8px 14px; padding-block: 10px; }
   .nav { order: 3; flex-basis: 100%; gap: 20px; }
   .search { order: 2; flex: 1; width: auto; min-width: 140px; }
   .header-actions { order: 1; margin-left: auto; }
   .user-chip span.name { display: none; }
-  .hide-sm { display: none; }
 }
+@media (max-width: 960px) { .hide-sm { display: none; } }
 
 /* ---------- Trang ---------- */
 .page { padding-top: 40px; }
