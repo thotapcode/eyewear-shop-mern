@@ -323,3 +323,7 @@ button, input, select { font: inherit; color: inherit; border-radius: 0; }
 .banner-arrows button { width: 44px; height: 44px; display: grid; place-items: center; border: 1px solid rgb(244 244 244 / 0.6); background: rgb(11 11 12 / 0.35); color: #f4f4f4; cursor: pointer; transition: background-color 0.2s, color 0.2s; }
 .banner-arrows button:hover { background: #f4f4f4; color: #0b0b0c; }
 @media (max-width: 640px) { .banner-arrows { display: none; } .banner-shade { background: linear-gradient(0deg, rgb(11 11 12 / 0.8), rgb(11 11 12 / 0.2)); } .banner-copy { justify-content: flex-end; padding-bottom: 64px; } }
+
+/* dấu nặng của chữ in hoa cỡ lớn thò xuống dưới dòng, chừa thêm chỗ để không dính dòng kế tiếp */
+.page-title, .section-head h2, .index-row h3, .detail-info h1, .auth-card h1, .banner-copy h2, .row-card h3, .auth-side h2, .hero h1, .display-sm { padding-bottom: 0.12em; }
+.page-title + .muted { margin-top: 14px !important; }
